@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="APMChambaSQL_DB:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/APMChambaSQL_DB_jar</output-path>
+    <root id="archive" name="APMChambaSQL_DB.jar">
+      <element id="module-output" name="APMChambaSQL_DB" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../../DAM/AccesoDatos/LibreriaYScript/mysql-connector-j-8.2.0/mysql-connector-j-8.2.0.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
