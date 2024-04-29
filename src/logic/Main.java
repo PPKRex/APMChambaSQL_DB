@@ -103,16 +103,7 @@ public class Main {
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
-        } finally{
-            try {
-                assert resultSet != null;
-                resultSet.close();
-                statement.close();
-                connection.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        } 
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(URL,USER,PASSWORD);
