@@ -32,7 +32,7 @@ if (seleccion) {
         var formData = new FormData();
         formData.append('file', file);
   
-        fetch('index.php', {
+        fetch("index.php", {
           method: 'POST',
           body: formData
         })

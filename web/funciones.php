@@ -1,6 +1,6 @@
 <?php
 // Directorio donde se guardará el archivo
-$uploadDir = '../logs/';
+$uploadDir = 'logs/';
 
 // Verificar si se ha subido algún archivo
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
