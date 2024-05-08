@@ -40,6 +40,7 @@
                     <?php 
 
                         if(isset($_GET['fecha'])) { botonNodos($_GET['fecha']); } ?>
+                    <input type="text" id="searchInput" class="form-control" placeholder="Buscar...">
                     <table id="tabla" class="table table-sm table-striped center" 
                     data-toggle="table" 
                     data-search="true"
