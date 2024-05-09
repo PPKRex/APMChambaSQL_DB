@@ -2,6 +2,10 @@ DROP DATABASE IF EXISTS logsData;
 CREATE DATABASE logsData;
 USE logsData;
 
+CREATE TABLE usuario (
+userName char(20) PRIMARY KEY,
+pass varchar(20));
+
 CREATE TABLE palabra_clave (
 codClave char(10) PRIMARY KEY,
 nombre varchar(70));
