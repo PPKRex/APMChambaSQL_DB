@@ -19,6 +19,24 @@ function conexionBD() {
 
 }
 
+function login($usuario, $contraseña) {
+
+    $conexion = conexionBD();
+
+   /* $sql = "SELECT usuario 
+    FROM usuarios 
+    WHERE usuario = '$usuario' AND contrasena = '$contrasena';"; 
+
+    $result = mysqli_query($conexion, $sql);*/
+
+    if ($result) {
+        $_SESSION['usuario'] = $usuario;
+    }
+    else {
+
+    }
+}
+
 function botonNodos($fecha) {
 
     $conexion = conexionBD();

@@ -53,3 +53,31 @@ if (seleccion) {
         event.preventDefault();
       }, false);
       document.addEventListener('drop', handleFileDrop, false);
+
+
+
+      document.getElementById('searchInput').addEventListener('input', function (event) {
+        const searchTerm = event.target.value.toLowerCase();
+        const tableRows = document.querySelectorAll('tr');
+    
+        tableRows.forEach(function (row) {
+            // Excluimos los elementos <th> para que no se vean afectados por la búsqueda
+            if (!row.querySelector('th')) {
+                let rowContainsSearchTerm = false;
+                const rowData = row.querySelectorAll('td');
+    
+                rowData.forEach(function (item) {
+                    const itemText = item.textContent.toLowerCase();
+                    if (itemText.includes(searchTerm)) {
+                        rowContainsSearchTerm = true;
+                    }
+                });
+    
+                if (rowContainsSearchTerm) {
+                    row.style.display = 'table-row';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        });
+    });
