@@ -16,6 +16,7 @@ public class Main {
         String insertNodo = "INSERT IGNORE INTO nodo (codLog, nombreNodo) VALUES (?,?);";
         String insertInfo = "INSERT IGNORE INTO informacion (codLog, codFecha, codInf, codClave, fechainfo, tiempoTrans) VALUES (?,?,?,?,?,?);";
         String selectClave = "SELECT codClave, nombre FROM palabra_clave;";
+        String selectDATABASES = "SHOW DATABASES;";
         String selectMaxFecha = "SELECT codFecha FROM logsdata.fecha_registro ORDER BY codFecha desc limit 1;";
 
         // Mapa encargado de contener el resultado de la consultaSQL que palabrasClave
@@ -44,6 +45,7 @@ public class Main {
         Statement statement = null;
         PreparedStatement preparedStatement = null;
         ResultSet resultSet= null;
+        boolean databaseExists = false;
 
         // Variables encargadas de formatear debidamente los nombres de los logs para guardarlos correctamente en la database.
         String[] logNameParts, lineParts;
@@ -59,10 +61,17 @@ public class Main {
 
             // Comprobación de existencia de la BASEse de datos, si no existe la crearemos.
             try{
-                connection = DriverManager.getConnection(URL,USER,PASSWORD);
+                connection = DriverManager.getConnection(URLCREATE,USER,PASSWORD);
                 statement = connection.createStatement();
-                resultSet = statement.executeQuery(selectClave);
-                if (!resultSet.next()){
+                resultSet = statement.executeQuery(selectDATABASES);
+                while (resultSet.next()){
+                    String nombreciuto = resultSet.getString(1);
+                    if (DATABASE_NAME.equals(resultSet.getString(1))){
+                        databaseExists = true;
+                    }
+
+                }
+                if (!databaseExists){
                     createDatabase();
                 }
 
@@ -173,7 +182,7 @@ public class Main {
 
     }
     public void createDatabase(){ // Este método se usa para crear la base de datos en caso de que no exista.
-        File script = new File("scriptAPMDatabaseBlanco.sql");
+        File script = new File(DATABASE_CREATE);
         Connection connexion;
         StringBuilder stringBuilder = new StringBuilder();
         String linea , consulta, salto = System.getProperty("line.separator");
