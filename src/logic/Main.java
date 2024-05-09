@@ -69,7 +69,7 @@ public class Main {
             // Comprobación de existencia de la BASEse de datos, si no existe la crearemos.
 
             try{
-                connection = DriverManager.getConnection(URLCREATE,USER,PASSWORD);
+                connection = DriverManager.getConnection(urlcreates[usuario],USER,PASSWORD);
                 statement = connection.createStatement();
                 resultSet = statement.executeQuery(selectDATABASES);
                 while (resultSet.next()){
@@ -80,7 +80,7 @@ public class Main {
 
                 }
                 if (!databaseExists){
-                    createDatabase();
+                    createDatabase(urlcreates, usuario);
                 }
 
             } catch (SQLException e) {
@@ -90,7 +90,7 @@ public class Main {
             try{
                 // Iniciación de la base de datos
                 Class.forName("com.mysql.cj.jdbc.Driver");
-                connection = DriverManager.getConnection(URL,USER,PASSWORD);
+                connection = DriverManager.getConnection(urls[usuario],USER,PASSWORD);
                 statement = connection.createStatement();
                 resultSet = statement.executeQuery(selectClave);
                 while(resultSet.next()){  // Consultamos en la base de datos las palabras clave y llenamos el mapa con ellas.
@@ -132,7 +132,7 @@ public class Main {
 
             try{
                 Class.forName("com.mysql.cj.jdbc.Driver");
-                connection = DriverManager.getConnection(URL,USER,PASSWORD);
+                connection = DriverManager.getConnection(urls[usuario],USER,PASSWORD);
                 for(int i = 0; i < hilos.length; i++){ // Iteramos cada hilo para obtener su información
                     numeroLinea = 0;
                     ficheroName = arrayFile[i].getName();
@@ -224,7 +224,7 @@ public class Main {
 
         return numero;
     }
-    public void createDatabase(){ // Este método se usa para crear la base de datos en caso de que no exista.
+    public void createDatabase(String [] urlCreates, int usuario){ // Este método se usa para crear la base de datos en caso de que no exista.
         File script = new File(DATABASE_CREATE);
         Connection connexion;
         StringBuilder stringBuilder = new StringBuilder();
@@ -250,7 +250,7 @@ public class Main {
         System.out.println(consulta);
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-            connexion = DriverManager.getConnection(URLCREATE, USER, PASSWORD);
+            connexion = DriverManager.getConnection(urlCreates[usuario], USER, PASSWORD);
             Statement sentencia = connexion.createStatement();
             res = sentencia.executeUpdate(consulta);
             System.out.println("funca, " + res);
