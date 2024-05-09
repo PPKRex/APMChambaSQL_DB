@@ -1,5 +1,6 @@
 <?php
 
+
 function conexionBD() {
 
     $host="127.0.0.1:3307";
@@ -19,15 +20,17 @@ function conexionBD() {
 
 }
 
-function login($usuario, $contraseña) {
+function login($usuario, $email, $pass) {
 
     $conexion = conexionBD();
 
-   /* $sql = "SELECT usuario 
-    FROM usuarios 
-    WHERE usuario = '$usuario' AND contrasena = '$contrasena';"; 
+    if ($usuario == null) {
 
-    $result = mysqli_query($conexion, $sql);*/
+        $sql = "SELECT email 
+                FROM usuario 
+                WHERE email = '$email' AND pass = '$pass';"; 
+
+    $result = mysqli_query($conexion, $sql);
 
     if ($result) {
         $_SESSION['usuario'] = $usuario;
@@ -35,6 +38,16 @@ function login($usuario, $contraseña) {
     else {
 
     }
+
+    }
+    else {
+
+        $sql = "INSERT INTO usuario(email, userName, pass) VALUES ('$email', '$usuario', '$pass')";
+        $result = mysqli_query($conexion, $sql);
+
+        
+    }
+
 }
 
 function botonNodos($fecha) {

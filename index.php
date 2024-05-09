@@ -2,12 +2,13 @@
 
     session_start();
     include('web/includes/header.php');
-    require('web/dbcon.php');
+    require_once('web/dbcon.php');
     require('web/funciones.php');
     
 
+  
+    if (isset($_SESSION['usuario'])) {
 ?>
-
 <div class="container">
     <div class="row">
         <div class="col-md-12">
@@ -86,7 +87,10 @@
 
 
 <?php
-
+    }
+    else {
+        echo "<h1> No ha iniciado sesión </h1>";
+    }
     include('web/includes/footer.php');
 
 ?>
