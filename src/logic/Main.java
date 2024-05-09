@@ -18,6 +18,12 @@ public class Main {
         String selectClave = "SELECT codClave, nombre FROM palabra_clave;";
         String selectDATABASES = "SHOW DATABASES;";
         String selectMaxFecha = "SELECT codFecha FROM logsdata.fecha_registro ORDER BY codFecha desc limit 1;";
+        String[] urlcreates = new String[2];
+        urlcreates[0] = URLCREATE;
+        urlcreates[1] = URLCREATEIVAN;
+        String[] urls = new String[2];
+        urlcreates[0] = URL;
+        urlcreates[1] = URLIVAN;
 
         // Mapa encargado de contener el resultado de la consultaSQL que palabrasClave
         Map<String, String> palabrasBusqueda = new HashMap<>();
@@ -60,56 +66,54 @@ public class Main {
             hilos = new ThreadClass[arrayFile.length];
 
             // Comprobación de existencia de la BASEse de datos, si no existe la crearemos.
-            try{
-                connection = DriverManager.getConnection(URLCREATE,USER,PASSWORD);
-                statement = connection.createStatement();
-                resultSet = statement.executeQuery(selectDATABASES);
-                while (resultSet.next()){
-                    String nombreciuto = resultSet.getString(1);
-                    if (DATABASE_NAME.equals(resultSet.getString(1))){
-                        databaseExists = true;
+            for( int i = 0; i <= urlcreates.length - 1; i++){
+                try{
+                    connection = DriverManager.getConnection(urlcreates[i],USER,PASSWORD);
+                    statement = connection.createStatement();
+                    resultSet = statement.executeQuery(selectDATABASES);
+                    while (resultSet.next()){
+                        String nombreciuto = resultSet.getString(1);
+                        if (DATABASE_NAME.equals(resultSet.getString(1))){
+                            databaseExists = true;
+                        }
+
+                    }
+                    if (!databaseExists){
+                        createDatabase(urlcreates);
                     }
 
-                }
-                if (!databaseExists){
-                    createDatabase();
-                }
-
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-
-
-            try{
-                // Iniciación de la base de datos
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                connection = DriverManager.getConnection(URL,USER,PASSWORD);
-                statement = connection.createStatement();
-                resultSet = statement.executeQuery(selectClave);
-                while(resultSet.next()){  // Consultamos en la base de datos las palabras clave y llenamos el mapa con ellas.
-                    palabrasBusqueda.put(resultSet.getString("codClave"), resultSet.getString("nombre"));
-                }
-                // Guardamos en la base de datos la fecha en la que se ejecutó el programa
-                preparedStatement = connection.prepareStatement(insertFecha);
-                preparedStatement.setString(1,fechaFinal);
-                preparedStatement.executeUpdate();
-
-                // Hacemos un select para saber que código de fecha tiene la ejecución actual.
-                resultSet = statement.executeQuery(selectMaxFecha);
-                while(resultSet.next()){
-                    codFecha =  resultSet.getString("codFecha") ;
-                }
-            }catch (ClassNotFoundException e) {
-                System.out.println("Error en el Driver");
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }finally{
-                try {
-                    resultSet.close();
-                    statement.close();
-                    connection.close();
                 } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                }
+            }
+            for ( int i = 0; i <= urls.length - 1; i++){
+                try{
+                    // Iniciación de la base de datos
+                    Class.forName("com.mysql.cj.jdbc.Driver");
+                    connection = DriverManager.getConnection(urls[i],USER,PASSWORD);
+                    statement = connection.createStatement();
+                    resultSet = statement.executeQuery(selectClave);
+                    while(resultSet.next()){  // Consultamos en la base de datos las palabras clave y llenamos el mapa con ellas.
+                        palabrasBusqueda.put(resultSet.getString("codClave"), resultSet.getString("nombre"));
+                    }
+                    // Guardamos en la base de datos la fecha en la que se ejecutó el programa
+                    preparedStatement = connection.prepareStatement(insertFecha);
+                    preparedStatement.setString(1,fechaFinal);
+                    preparedStatement.executeUpdate();
+
+                    // Hacemos un select para saber que código de fecha tiene la ejecución actual.
+                    resultSet = statement.executeQuery(selectMaxFecha);
+                    while(resultSet.next()){
+                        codFecha =  resultSet.getString("codFecha") ;
+                    }
+                }catch (ClassNotFoundException e) {
+                } catch (SQLException e) {
+                }finally{
+                    try {
+                        resultSet.close();
+                        statement.close();
+                        connection.close();
+                    } catch (SQLException e) {
+                    }
                 }
             }
 
@@ -122,66 +126,63 @@ public class Main {
 
                 }
             }
+            for ( int i = 0; i <= urls.length - 1; i++){
+                try{
+                    Class.forName("com.mysql.cj.jdbc.Driver");
+                    connection = DriverManager.getConnection(urls[i],USER,PASSWORD);
+                    for(int j = 0; j < hilos.length; j++){ // Iteramos cada hilo para obtener su información
+                        numeroLinea = 0;
+                        ficheroName = arrayFile[j].getName();
+                        if (ficheroName.contains(".log")) {
+                            hilos[j].join();
+                            if (hilos[j].getListaLocal() != null){ //Obtenemos de los hilos una lista con toda la información en lineas
+                                logNameParts = ficheroName.split("\\."); //Obtenemos el nombre formateado del fichero de este hilo
+                                ficheroName = logNameParts[0];
+                                logNameParts = logNameParts[0].split("-");
+                                logNameParts = logNameParts[1].split(" ");
+                                if (logNameParts.length > 1){
+                                    logName = logNameParts[1];
+                                }else{
+                                    logName = logNameParts[0];
+                                }
 
-            try{
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                connection = DriverManager.getConnection(URL,USER,PASSWORD);
-                for(int i = 0; i < hilos.length; i++){ // Iteramos cada hilo para obtener su información
-                    numeroLinea = 0;
-                    ficheroName = arrayFile[i].getName();
-                    if (ficheroName.contains(".log")) {
-                        hilos[i].join();
-                        if (hilos[i].getListaLocal() != null){ //Obtenemos de los hilos una lista con toda la información en lineas
-                            logNameParts = ficheroName.split("\\."); //Obtenemos el nombre formateado del fichero de este hilo
-                            ficheroName = logNameParts[0];
-                            logNameParts = logNameParts[0].split("-");
-                            logNameParts = logNameParts[1].split(" ");
-                            if (logNameParts.length > 1){
-                                logName = logNameParts[1];
-                            }else{
-                                logName = logNameParts[0];
-                            }
+                                // Si es la primera vez que el log es leido añadiremos su nombre a la base de datos
+                                preparedStatement = connection.prepareStatement(insertNodo);
+                                preparedStatement.setString(1,ficheroName);
+                                preparedStatement.setString(2,logName);
+                                preparedStatement.executeUpdate();
 
-                            // Si es la primera vez que el log es leido añadiremos su nombre a la base de datos
-                            preparedStatement = connection.prepareStatement(insertNodo);
-                            preparedStatement.setString(1,ficheroName);
-                            preparedStatement.setString(2,logName);
-                            preparedStatement.executeUpdate();
-
-                            for (String linea: hilos[i].getListaLocal()){ //Iteramos la lista del hilo para subir cada linea a la base de datos
-                                numeroLinea++;
-                                numeroLineasTotal++;
-                                if (linea  != null){
-                                    lineParts = linea.split("/"); // Separamos el contenido de la linea y añadimos cada parte a una instrucción de la SQL
-                                    preparedStatement = connection.prepareStatement(insertInfo);
-                                    preparedStatement.setString(1,ficheroName);
-                                    preparedStatement.setInt(2, Integer.parseInt(codFecha));
-                                    preparedStatement.setString(3, String.valueOf(numeroLinea));
-                                    preparedStatement.setString(4,lineParts[0]);
-                                    preparedStatement.setString(5,lineParts[1]);
-                                    preparedStatement.setString(6,lineParts[2]);
-                                    preparedStatement.executeUpdate();
+                                for (String linea: hilos[j].getListaLocal()){ //Iteramos la lista del hilo para subir cada linea a la base de datos
+                                    numeroLinea++;
+                                    numeroLineasTotal++;
+                                    if (linea  != null){
+                                        lineParts = linea.split("/"); // Separamos el contenido de la linea y añadimos cada parte a una instrucción de la SQL
+                                        preparedStatement = connection.prepareStatement(insertInfo);
+                                        preparedStatement.setString(1,ficheroName);
+                                        preparedStatement.setInt(2, Integer.parseInt(codFecha));
+                                        preparedStatement.setString(3, String.valueOf(numeroLinea));
+                                        preparedStatement.setString(4,lineParts[0]);
+                                        preparedStatement.setString(5,lineParts[1]);
+                                        preparedStatement.setString(6,lineParts[2]);
+                                        preparedStatement.executeUpdate();
+                                    }
                                 }
                             }
                         }
                     }
+                    // El programa finaliza mostrando al usuario cuantas coincidencias encontró en total
+                    System.out.println(numeroLineasTotal + " Coincidencias encontradas");
+                    connection.close();
+                } catch (InterruptedException | SQLException | ClassNotFoundException e) {
                 }
-                // El programa finaliza mostrando al usuario cuantas coincidencias encontró en total
-                System.out.println(numeroLineasTotal + " Coincidencias encontradas");
-                connection.close();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
             }
+
         }else{
             System.out.println("NO HAY NINGÚN FICHERO .LOG EN LA CARPETA LOGS.");
         }
 
     }
-    public void createDatabase(){ // Este método se usa para crear la base de datos en caso de que no exista.
+    public void createDatabase(String [] urlCreates){ // Este método se usa para crear la base de datos en caso de que no exista.
         File script = new File(DATABASE_CREATE);
         Connection connexion;
         StringBuilder stringBuilder = new StringBuilder();
@@ -205,23 +206,21 @@ public class Main {
         }
         consulta = stringBuilder.toString();
         System.out.println(consulta);
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            connexion = DriverManager.getConnection(URLCREATE, USER, PASSWORD);
-            Statement sentencia = connexion.createStatement();
-            res = sentencia.executeUpdate(consulta);
-            System.out.println("funca, " + res);
-            connexion.close();
-            sentencia.close();
-            br.close();
-            fr.close();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        for ( int i = 0; i <= urlCreates.length - 1; i++){
+            try {
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                connexion = DriverManager.getConnection(urlCreates[i], USER, PASSWORD);
+                Statement sentencia = connexion.createStatement();
+                res = sentencia.executeUpdate(consulta);
+                System.out.println("funca, " + res);
+                connexion.close();
+                sentencia.close();
+                br.close();
+                fr.close();
+            } catch (ClassNotFoundException | IOException | SQLException e) {
+            }
         }
+
     }
     public static void main(String[] args) {
         new Main().logic();

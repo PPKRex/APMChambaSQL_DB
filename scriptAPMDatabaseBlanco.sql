@@ -3,7 +3,8 @@ CREATE DATABASE logsData;
 USE logsData;
 
 CREATE TABLE usuario (
-userName char(20) PRIMARY KEY,
+email varchar(40) PRIMARY KEY,
+userName char(20),
 pass varchar(20));
 
 CREATE TABLE palabra_clave (
