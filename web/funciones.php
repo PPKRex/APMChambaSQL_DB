@@ -1,4 +1,6 @@
 <?php
+session_start();
+require_once 'dbcon.php';
 // Directorio donde se guardará el archivo
 $uploadDir = 'logs/';
 
@@ -26,10 +28,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['loginSubmit'])) {
     $loginEmail = $_POST["loginEmail"];
     $loginPassword = $_POST["loginPassword"];
 
-    login(null, $loginEmail, $loginPassword);
-
-    header("Location: login.php");
-    exit();
+    $conexion = conexionBD();
+    
+    $sql = "SELECT email 
+            FROM usuario 
+            WHERE email like '$loginEmail' AND passW like '$loginPassword'"; 
+    
+            $result = mysqli_query($conexion, $sql);
+    
+            if ($result) {
+                $_SESSION['usuario'] = $loginEmail;
+                // Debug: Verify if session is set
+                if (isset($_SESSION['usuario'])) {
+                    echo "Session set: " . $_SESSION['usuario'];
+                } else {
+                    echo "Session not set";
+                }
+                // Redirect after setting session
+                header("Location: ../index.php");
+                exit();
+            } else {
+                // Debug: Check for MySQL errors
+                echo "Error: " . mysqli_error($conexion);
+                // Redirect if login fails
+                header("Location: ../index.php");
+                exit();
+            }
+    
     // Aquí puedes realizar la validación y autenticación del usuario
 }
 
@@ -40,12 +65,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['registroSubmit'])) {
     $registroEmail = $_POST["registroEmail"];
     $registroPassword = $_POST["registroPassword"];
 
-    echo $registroNombre . $registroEmail . $registroPassword;
-
     login($registroNombre, $registroEmail, $registroPassword);
-
-    header("Location: login.php");
-    exit();    
+        
     // Aquí puedes realizar el registro del nuevo usuario
 }
 

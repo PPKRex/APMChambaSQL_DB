@@ -3,7 +3,7 @@
 
 function conexionBD() {
 
-    $host="127.0.0.1:3307";
+    $host="127.0.0.1";
     $usuario="root";
     $pass="";
     $nom_db = "logsdata";
@@ -28,23 +28,24 @@ function login($usuario, $email, $pass) {
 
         $sql = "SELECT email 
                 FROM usuario 
-                WHERE email = '$email' AND pass = '$pass';"; 
+                WHERE email = '$email' AND passW = '$pass';"; 
 
     $result = mysqli_query($conexion, $sql);
 
     if ($result) {
         $_SESSION['usuario'] = $usuario;
+        header("Location: ../index.php");
+    }
+    else {
+        header("Location: ../index.php");
+    }
+
     }
     else {
 
-    }
-
-    }
-    else {
-
-        $sql = "INSERT INTO usuario(email, userName, pass) VALUES ('$email', '$usuario', '$pass')";
+        $sql = "INSERT INTO usuario(email, userName, passW) VALUES ('$email', '$usuario', '$pass')";
         $result = mysqli_query($conexion, $sql);
-
+        $_SESSION['usuario'] = $email;
         
     }
 

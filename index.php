@@ -1,12 +1,11 @@
 <?php
 
-    session_start();
+    
     include('web/includes/header.php');
     require_once('web/dbcon.php');
     require('web/funciones.php');
-    
-
   
+    
     if (isset($_SESSION['usuario'])) {
 ?>
 <div class="container">
