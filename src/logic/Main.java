@@ -22,8 +22,8 @@ public class Main {
         urlcreates[0] = URLCREATE;
         urlcreates[1] = URLCREATEIVAN;
         String[] urls = new String[2];
-        urlcreates[0] = URL;
-        urlcreates[1] = URLIVAN;
+        urls[0] = URL;
+        urls[1] = URLIVAN;
         int usuario = definirUsuario(USUARIOMIN,USUARIOMAX);
 
         // Mapa encargado de contener el resultado de la consultaSQL que palabrasClave
