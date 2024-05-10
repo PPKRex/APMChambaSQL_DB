@@ -24,33 +24,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
 
 // Procesar formulario de inicio de sesión
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['loginSubmit'])) {
-    // Recoger los datos del formulario
+    // Recoger los datos del formulario según las id de los campos input de estos
     $loginEmail = $_POST["loginEmail"];
     $loginPassword = $_POST["loginPassword"];
 
     $conexion = conexionBD();
     
+    //Se hace la consulta con los datos recogidos
     $sql = "SELECT email 
             FROM usuario 
             WHERE email like '$loginEmail' AND passW like '$loginPassword'"; 
     
             $result = mysqli_query($conexion, $sql);
     
+            //Si hay resultados, entonces se realiza la asignacion de la variable de sesión
+            //Creo que este if no es necesario y podria llamar a la funcion en dbcon.php, pero no lo he comprobado
             if ($result) {
                 $_SESSION['usuario'] = $loginEmail;
-                // Debug: Verify if session is set
+                // Comprueba que se asigna la variable de sesion
                 if (isset($_SESSION['usuario'])) {
                     echo "Session set: " . $_SESSION['usuario'];
                 } else {
                     echo "Session not set";
                 }
-                // Redirect after setting session
+                // Redirecciona a la pagina principal
                 header("Location: ../index.php");
                 exit();
             } else {
-                // Debug: Check for MySQL errors
+                // Comprueba si hay errores
                 echo "Error: " . mysqli_error($conexion);
-                // Redirect if login fails
+                // Redirecciona
                 header("Location: ../index.php");
                 exit();
             }
@@ -60,14 +63,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['loginSubmit'])) {
 
 // Procesar formulario de registro
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['registroSubmit'])) {
-    // Recoger los datos del formulario
+    // Recoger los datos del formulario según su id en el input
     $registroNombre = $_POST["registroNombre"];
     $registroEmail = $_POST["registroEmail"];
     $registroPassword = $_POST["registroPassword"];
 
     login($registroNombre, $registroEmail, $registroPassword);
-        
-    // Aquí puedes realizar el registro del nuevo usuario
 }
 
 
