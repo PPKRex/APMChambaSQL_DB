@@ -90,7 +90,7 @@
     }
     //Si no hay usuario (variable de sesion creada al logearse) muestra solo que no está logeado.
     else {
-        echo "<h1> No ha iniciado sesión </h1>";
+        echo "<h1 align='center'> No ha iniciado sesión </h1>";
     }
     include('web/includes/footer.php');
 

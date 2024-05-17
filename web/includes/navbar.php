@@ -11,7 +11,16 @@
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
 
         <li class="nav-item">
-          <a class="nav-link" href="web/login.php"> Login </a>
+          <?php 
+          if (isset($_SESSION['usuario'])){
+
+            echo '<a class="nav-link" href="web/login.php"> Cerrar Sesión </a>';
+          }
+          else {
+            echo '<a class="nav-link" href="web/login.php"> Login </a>';
+          }
+          
+          ?>
         </li>
         
         
