@@ -5,7 +5,7 @@ USE logsData;
 CREATE TABLE usuario (
 email varchar(40) PRIMARY KEY,
 userName char(20),
-pass varchar(20));
+passW varchar(20));
 
 CREATE TABLE palabra_clave (
 codClave char(10) PRIMARY KEY,
