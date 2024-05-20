@@ -1,1 +1,0 @@
-java -jar out\artifacts\APMChambaSQL_DB_jar\APMChambaSQL_DB.jar
