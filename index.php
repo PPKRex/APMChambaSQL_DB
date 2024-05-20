@@ -40,7 +40,11 @@
                     <?php 
 
                         if(isset($_GET['fecha'])) { botonNodos($_GET['fecha']);  } // Funcion en dbcon.php?>
-                    <input type="text" id="searchInput" class="form-control" placeholder="Buscar...">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Buscar..." list="suggestions">
+                    <datalist id="suggestions">
+                        <option value="ERROR"></option>
+                        <option value="WARNING"></option>
+                    </datalist>
                     <table id="tabla" class="table table-sm table-striped center" 
                     data-toggle="table" 
                     data-search="true"

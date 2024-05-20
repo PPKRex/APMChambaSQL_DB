@@ -81,3 +81,24 @@ if (seleccion) {
             }
         });
     });
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+      var botones = document.querySelectorAll("botonNodos");
+      var primerIteracion = false;
+             
+      
+      botones.forEach(function(celda){
+          
+          if (celda.textContent.includes("XPS") || celda.textContent.includes("XPS")) {
+              celda.style.backgroundColor = "blue";
+          }
+          else if (celda.textContent == "ecn4" || celda.textContent.includes("Not connected")) {
+              celda.style.backgroundColor = "orange";
+          }
+          else if (celda.textContent == "Center" || celda.textContent.includes("Cluster") || celda.textContent.includes("up") || celda.textContent.includes("READY")) {
+              celda.style.backgroundColor = "green";
+          }
+
+      });
+  })

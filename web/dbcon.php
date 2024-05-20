@@ -79,7 +79,7 @@ function botonNodos($fecha) {
         $url = 'index.php?fecha=' . $fecha . '&nodo=' . $row['nombreNodo'];
         //Escribimos la etiqueta para que cada botón rediriga a la URL especificada arriba, y como nombre visible de este botón
         //Será el nombre del nodo recogido anteriormente.
-        $lineaDeBotones .= '<div class="col"><a href="' . $url . '" class="btn btn-primary">' . $row['nombreNodo'] . '</a></div>';
+        $lineaDeBotones .= '<div class="col"><a href="' . $url . '" id="botonNodos" class="btn btn-primary">' . $row['nombreNodo'] . '</a></div>';
     }
     //Y cerramos el contenedor del botón.
     $lineaDeBotones .= '</div><br>';
