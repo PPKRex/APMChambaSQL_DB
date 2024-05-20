@@ -88,8 +88,6 @@
     </div>
 </div>
 
-
-
 <?php
     }
     //Si no hay usuario (variable de sesion creada al logearse) muestra solo que no está logeado.
