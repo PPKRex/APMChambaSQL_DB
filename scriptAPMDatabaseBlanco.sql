@@ -16,8 +16,12 @@ codLog varchar(50) PRIMARY KEY,
 nombreNodo char(20));
 
 CREATE TABLE fecha_registro(
-codFecha INT AUTO_INCREMENT PRIMARY KEY,
-fechaRegistro DATETIME);
+codFecha INT AUTO_INCREMENT,
+email varchar(40),
+fechaRegistro DATETIME)
+PRIMARY KEY(codFecha, email),
+CONSTRAINT FK_email FOREIGN KEY (email),
+REFERENCES usuario(email) ON DELETE CASCADE ON UPDATE CASCADE;
 
 CREATE TABLE informacion(
 codLog varchar(50),
