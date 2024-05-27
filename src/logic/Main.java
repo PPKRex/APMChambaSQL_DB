@@ -12,12 +12,16 @@ public class Main {
     public void logic(){
 
         //Variables de las Consultas SQL
-        String insertFecha = "INSERT INTO fecha_registro (fechaRegistro) VALUES (?)";
+        String insertFecha = "INSERT INTO fecha_registro (email,fechaRegistro) VALUES (?,?)";
         String insertNodo = "INSERT IGNORE INTO nodo (codLog, nombreNodo) VALUES (?,?);";
         String insertInfo = "INSERT IGNORE INTO informacion (codLog, codFecha, codInf, codClave, fechainfo, tiempoTrans) VALUES (?,?,?,?,?,?);";
         String selectClave = "SELECT codClave, nombre FROM palabra_clave;";
+        String selectUsers = "SELECT email FROM usuario;";
+        int users = 0, userSelected = 0;
+        String password = "", passwordUser;
         String selectDATABASES = "SHOW DATABASES;";
         String selectMaxFecha = "SELECT codFecha FROM logsdata.fecha_registro ORDER BY codFecha desc limit 1;";
+        String selectPassword = "SELECT passW FROM usuario Where email = ?;";
         String[] urlcreates = new String[2];
         urlcreates[0] = URLCREATE;
         urlcreates[1] = URLCREATEIVAN;
@@ -28,6 +32,9 @@ public class Main {
 
         // Mapa encargado de contener el resultado de la consultaSQL que palabrasClave
         Map<String, String> palabrasBusqueda = new HashMap<>();
+
+        // Mapa encargado de contener el resultado de la consultaSQL de usuarios
+        Map<Integer, String> usuariosDatabase = new HashMap<>();
 
         // Variables encargadas de guardar y formatear la fecha exacta de ejecución del programa.
         // Así como saber que codFecha tendrá en la base de datos
@@ -73,7 +80,6 @@ public class Main {
                 statement = connection.createStatement();
                 resultSet = statement.executeQuery(selectDATABASES);
                 while (resultSet.next()){
-                    String nombreciuto = resultSet.getString(1);
                     if (DATABASE_NAME.equals(resultSet.getString(1))){
                         databaseExists = true;
                     }
@@ -86,6 +92,61 @@ public class Main {
             } catch (SQLException e) {
             }
 
+            try{
+                // Iniciación de la base de datos
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                connection = DriverManager.getConnection(urls[usuario],USER,PASSWORD);
+                statement = connection.createStatement();
+                resultSet = statement.executeQuery(selectUsers);
+                while(resultSet.next()){
+                    // Consultamos en la base de datos si existen usuarios, si no existen el programa abortará, si existen se pedirá uno.
+                    users += 1;
+                    usuariosDatabase.put(users, resultSet.getString("email"));
+                }
+                if (users == 0){
+                    throw new IllegalArgumentException("NO PUEDES EJECUTAR EL PROGRAMA SIN USUARIOS REGISTRADOS");
+                }else{
+                    System.out.println("--------Lista de usuarios--------\n");
+                    for(Map.Entry<Integer,String> entry: usuariosDatabase.entrySet()){
+                        System.out.printf("    %d -> %s\n\n", entry.getKey(), entry.getValue());
+                    }
+                    System.out.println("Escribe el número del usuario que deseas.");
+                    do {
+                        System.out.printf("%d-%d: ", 1, users);
+                        userSelected = readInt();
+                    } while (userSelected < 1 || userSelected > users);
+                    String userEmail = usuariosDatabase.get(userSelected);
+                    PreparedStatement sentence = connection.prepareStatement(selectPassword);
+                    sentence.setString(1,userEmail);
+                    resultSet = sentence.executeQuery();
+                    while(resultSet.next()){
+                        password = resultSet.getString("passW");
+                    }
+                    do {
+                        System.out.printf("Por favor, introduce la contraseña para '%s' \n", usuariosDatabase.get(userSelected));
+                        passwordUser = readString();
+                        System.out.println(passwordUser + ":" + password);
+                        if (!Objects.equals(password, passwordUser)){
+                            System.out.println("Contraseña incorrecta");
+                        }else{
+                            System.out.println("Contraseña correcta, leyendo archivos ...");
+                        }
+                    } while (!Objects.equals(password, passwordUser));
+                }
+
+            }catch (ClassNotFoundException e) {
+                System.out.println("Error en el Driver");
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }finally{
+                try {
+                    resultSet.close();
+                    statement.close();
+                    connection.close();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+            }
 
             try{
                 // Iniciación de la base de datos
@@ -98,7 +159,8 @@ public class Main {
                 }
                 // Guardamos en la base de datos la fecha en la que se ejecutó el programa
                 preparedStatement = connection.prepareStatement(insertFecha);
-                preparedStatement.setString(1,fechaFinal);
+                preparedStatement.setString(1,usuariosDatabase.get(userSelected));
+                preparedStatement.setString(2,fechaFinal);
                 preparedStatement.executeUpdate();
 
                 // Hacemos un select para saber que código de fecha tiene la ejecución actual.
@@ -206,6 +268,10 @@ public class Main {
         return usuario;
     }
 
+    public String readString(){
+        Scanner keyboard = new Scanner(System.in);
+        return keyboard.nextLine();
+    }
     public int readInt(){
         Scanner keyboard = new Scanner(System.in);
         boolean exit = false;
