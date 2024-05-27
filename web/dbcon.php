@@ -40,7 +40,7 @@ function login($usuario, $email, $pass) {
 
     //Si el resultado da alguna coincidencia, se crea la variable de sesion del usuario y se redirige a la pagina principal
     if ($result) {
-        $_SESSION['usuario'] = $email;
+        $_SESSION['usuario'] = $usuario;
         header("Location: ../index.php");
     }
     //Si no, devuelve a la pagina principal sin mas
@@ -54,7 +54,7 @@ function login($usuario, $email, $pass) {
 
         $sql = "INSERT INTO usuario(email, userName, passW) VALUES ('$email', '$usuario', '$pass')";
         $result = mysqli_query($conexion, $sql);
-
+        
         if ($result) {
             $_SESSION['usuario'] = $email;
             header("Location: ../index.php");
