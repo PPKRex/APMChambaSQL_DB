@@ -112,20 +112,18 @@ public class Main {
                     }
                     System.out.println("Escribe el número del usuario que deseas.");
                     do {
-                        System.out.printf("%d-%d: ", 1, users);
                         userSelected = readInt();
                     } while (userSelected < 1 || userSelected > users);
                     String userEmail = usuariosDatabase.get(userSelected);
                     PreparedStatement sentence = connection.prepareStatement(selectPassword);
                     sentence.setString(1,userEmail);
-                    resultSet = sentence.executeQuery();
-                    while(resultSet.next()){
-                        password = resultSet.getString("passW");
+                    ResultSet resultSet2 = sentence.executeQuery();
+                    while(resultSet2.next()){
+                        password = resultSet2.getString("passW");
                     }
                     do {
                         System.out.printf("Por favor, introduce la contraseña para '%s' \n", usuariosDatabase.get(userSelected));
                         passwordUser = readString();
-                        System.out.println(passwordUser + ":" + password);
                         if (!Objects.equals(password, passwordUser)){
                             System.out.println("Contraseña incorrecta");
                         }else{
@@ -135,8 +133,9 @@ public class Main {
                 }
 
             }catch (ClassNotFoundException e) {
-                System.out.println("Error en el Driver");
+                System.err.println("Error en el Driver");
             } catch (SQLException e) {
+                System.err.println("Error en el SQL, quizá el servidor se encuentra cerrado");
                 throw new RuntimeException(e);
             }finally{
                 try {
@@ -144,6 +143,7 @@ public class Main {
                     statement.close();
                     connection.close();
                 } catch (SQLException e) {
+                    System.err.println("Error en el cerrado");
                     throw new RuntimeException(e);
                 }
             }
@@ -198,18 +198,18 @@ public class Main {
                 for(int i = 0; i < hilos.length; i++){ // Iteramos cada hilo para obtener su información
                     numeroLinea = 0;
                     ficheroName = arrayFile[i].getName();
-                    if (ficheroName.contains(".log")) {
+                    if (ficheroName.contains(".log") && ficheroName.contains(usuariosDatabase.get(userSelected))) {
                         hilos[i].join();
                         if (hilos[i].getListaLocal() != null){ //Obtenemos de los hilos una lista con toda la información en lineas
                             logNameParts = ficheroName.split("\\."); //Obtenemos el nombre formateado del fichero de este hilo
-                            ficheroName = logNameParts[0];
-                            logNameParts = logNameParts[0].split("-");
-                            logNameParts = logNameParts[1].split(" ");
-                            if (logNameParts.length > 1){
-                                logName = logNameParts[1];
-                            }else{
-                                logName = logNameParts[0];
+                            logNameParts = logNameParts[1].split("___");
+                            ficheroName = logNameParts[1];
+                            System.out.println(ficheroName);
+                            if (logNameParts[1].contains("-")) {
+                                logNameParts = logNameParts[1].split("-");
                             }
+                            logName = logNameParts[1];
+
 
                             // Si es la primera vez que el log es leido añadiremos su nombre a la base de datos
                             preparedStatement = connection.prepareStatement(insertNodo);
