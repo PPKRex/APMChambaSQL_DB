@@ -54,8 +54,15 @@ function login($usuario, $email, $pass) {
 
         $sql = "INSERT INTO usuario(email, userName, passW) VALUES ('$email', '$usuario', '$pass')";
         $result = mysqli_query($conexion, $sql);
-        $_SESSION['usuario'] = $email;
-        header("Location: ../index.php");
+        
+        if ($result) {
+            $_SESSION['usuario'] = $email;
+            header("Location: ../index.php");
+        }
+        //Si no, devuelve a la pagina principal sin mas
+        else {
+            header("Location: ../index.php");
+        }
         
     }
 
