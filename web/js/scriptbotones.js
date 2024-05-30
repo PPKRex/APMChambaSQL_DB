@@ -18,3 +18,35 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.toggle-column').forEach(function (header) {
+        header.addEventListener('click', function () {
+            const content = this.nextElementSibling;
+            if (content.style.display === "none") {
+                content.style.display = "block";
+            } else {
+                content.style.display = "none";
+            }
+        });
+    });
+
+    document.querySelectorAll('.botonNodos').forEach(function (button) {
+        button.addEventListener('click', function (event) {
+             // Evitar la redirección
+
+            const nodoName = this.getAttribute('data-nodo');
+            const container = this.parentNode;
+
+            if (!container.querySelector('.nested-buttons')) {
+                const nestedDiv = document.createElement('div');
+                nestedDiv.classList.add('nested-buttons');
+
+                // Aquí generamos los nuevos botones
+                
+
+                container.appendChild(nestedDiv);
+            }
+        });
+    });
+});

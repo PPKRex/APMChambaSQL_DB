@@ -70,29 +70,57 @@ function login($usuario, $email, $pass) {
 
 //Función que muestra todos los nodos de la base de datos en forma de botón.
 function botonNodos($fecha) {
-
     $conexion = conexionBD();
-
-    //Buscamos todos los nodos y los ordenamos en función de su nombre para que no se repitan nombres (Center 1 y Center 2 pej)
     $sql = "SELECT nombreNodo FROM nodo GROUP BY nombreNodo";
     $result = mysqli_query($conexion, $sql);
 
-    //Inicializamos la etiqueta para que se ordenen en fila en ese contenedor
-    $lineaDeBotones = '<div class="row">';
+    // Inicializar arrays para cada columna
+    $columnas = [
+        'Nodos' => ['APP', 'DECKER', 'CLUSTER', 'APEX'],
+        'Center' => ['CENTER', 'STANDBY'],
+        'Bridge' => ['BRIDGE', 'DISPATCHER'],
+        'XPS' => ['XPS'],
+        'ECN4' => ['ECN4', 'ECN4WEB']
+    ];
 
-    // Bucle que recorre todo el array de resultados de la sentencia anterior y lo escribe
+    // Inicializar un array para almacenar los botones en cada columna
+    $botonesPorColumna = [
+        'Nodos' => [],
+        'Center' => [],
+        'Bridge' => [],
+        'XPS' => [],
+        'ECN4' => []
+    ];
+
+    // Agrupar los nodos según las columnas especificadas
     while ($row = mysqli_fetch_assoc($result)) {
-        //Creamos la URL para que tenga los datos que nos hacen falta para los GET: la fecha de registro y el nombre del nodo a mostrar
-        $url = 'index.php?fecha=' . $fecha . '&nodo=' . $row['nombreNodo'];
-        //Escribimos la etiqueta para que cada botón rediriga a la URL especificada arriba, y como nombre visible de este botón
-        //Será el nombre del nodo recogido anteriormente.
-        $lineaDeBotones .= '<div class="col"><a href="' . $url . '"  class="botonNodos btn btn-primary">' . $row['nombreNodo'] . '</a></div>';
+        $nombreNodo = strtoupper($row['nombreNodo']);
+        foreach ($columnas as $columna => $nombres) {
+            foreach ($nombres as $nombre) {
+                if (strpos($nombreNodo, $nombre) !== false) {
+                    $botonesPorColumna[$columna][] = $nombreNodo;
+                    break 2;
+                }
+            }
+        }
     }
-    //Y cerramos el contenedor del botón.
-    $lineaDeBotones .= '</div><br>';
 
-// Como hemos ido añadiendo a la variable, al final nos queda una variable unica con todos los resultados de la consulta
-// Y la escribimos en la página.
+    $lineaDeBotones = '<div class="container"><div class="row">';
+
+    // Generar los botones para cada columna
+    foreach ($botonesPorColumna as $columna => $botones) {
+        $colClass = strtolower($columna); // Convertimos el nombre de la columna en minúsculas para usarlo como clase CSS
+        $lineaDeBotones .= '<div class="col ' . $colClass . '"><h5 class="toggle-column" style="cursor: pointer;">' . $columna . '</h5>';
+        $lineaDeBotones .= '<div class="column-content" style="display: none;">';
+        foreach ($botones as $boton) {
+            $url = 'index.php?fecha=' . $fecha . '&nodo=' . $boton;
+            $lineaDeBotones .= '<div><a href="' . $url . '" class="botonNodos btn btn-primary ' . $colClass . '" data-nodo="' . $boton . '">' . $boton . '</a></div>';
+        }
+        $lineaDeBotones .= '</div></div>';
+    }
+
+    $lineaDeBotones .= '</div></div>';
+
     echo $lineaDeBotones;
 }
 

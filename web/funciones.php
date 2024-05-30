@@ -7,7 +7,7 @@ $uploadDir = 'logs/';
 // Verificar si se ha subido algún archivo
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file']) && isset($_SESSION['usuario'])) {
     // Ruta completa del archivo en el servidor
-    $uploadFile = $uploadDir . $_SESSION['usuario'] . " - " . basename($_FILES['file']['name']);
+    $uploadFile = $uploadDir . $_SESSION['usuario'] . "___" . basename($_FILES['file']['name']);
 
     // Intentar mover el archivo subido al directorio deseado
     if (move_uploaded_file($_FILES['file']['tmp_name'], $uploadFile)) {

@@ -12,6 +12,7 @@
 
         <li class="nav-item">
           <?php 
+          
           if (isset($_SESSION['usuario'])){
 
             echo '<a class="nav-link" href="web/login.php"> Cerrar Sesión </a>';
