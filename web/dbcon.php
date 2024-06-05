@@ -183,10 +183,12 @@ function tablaOrden($nodo, $orden, $direccion, $fecha) {
 function generarListado() {
 
     $conexion = conexionBD();
+    $email = $_SESSION['usuario'];
 
     // Buscamos todas las fechas con su código que tengamos en la base de datos
     $sql = "SELECT fechaRegistro, codFecha
-            FROM fecha_registro";
+            FROM fecha_registro
+            WHERE email = '$email'";
 
     $result = mysqli_query($conexion, $sql);
 

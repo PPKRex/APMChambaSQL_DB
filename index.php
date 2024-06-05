@@ -31,6 +31,7 @@
                         Análisis de logs <?php if(isset($_GET['fecha'])) { tituloLog($_GET['fecha']);  } //Función en dbcon.php ?>
                         
                         <div id="drop_zone" class="btn btn-primary float-end"> Añadir fichero </div>
+                        
                     </h4>
                 </div>
 
