@@ -50,16 +50,16 @@ REFERENCES palabra_clave(codClave) ON DELETE RESTRICT ON UPDATE CASCADE);
 
 Insert into palabra_clave values
 ("WTS", "Web tier servlet", null),
-("ASC", "Application shutdown completed."),
-("SUC", "Start up complete."),
-("BDU", "Bridge Daemon is up."),
-("BSRN4R", "Bridge synchronous requests: Is N4 ready to serve bridge's requests?"),
-("SXPS", "Stop XPSObject Translation Service:"),
-("N4RRT", "isN4Ready: Return TRUE"),
-("BSRGMO", "Bridge synchronous requests: Get miscellaneous objects"),
-("N4RSR", "N4 is READY to serve requests"),
-("WRSN4", "Waiting for READY signal from N4."),
-("LXPSO", "loading xps object"),
-("ARABIS", "Awaiting reconnect attempts before initiating shutdown.");
+("ASC", "Application shutdown completed.", null),
+("SUC", "Start up complete.", null),
+("BDU", "Bridge Daemon is up.", null),
+("BSRN4R", "Bridge synchronous requests: Is N4 ready to serve bridge's requests?", null),
+("SXPS", "Stop XPSObject Translation Service:", null),
+("N4RRT", "isN4Ready: Return TRUE", null),
+("BSRGMO", "Bridge synchronous requests: Get miscellaneous objects", null),
+("N4RSR", "N4 is READY to serve requests", null),
+("WRSN4", "Waiting for READY signal from N4.", null),
+("LXPSO", "loading xps object", null),
+("ARABIS", "Awaiting reconnect attempts before initiating shutdown.", null);
 
 
