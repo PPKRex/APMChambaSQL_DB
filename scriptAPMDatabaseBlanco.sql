@@ -9,7 +9,16 @@ passW varchar(20));
 
 CREATE TABLE palabra_clave (
 codClave char(10) PRIMARY KEY,
-nombre varchar(70));
+nombre varchar(70),
+email varchar(40));
+
+CREATE TABLE terminal (
+    codTerminal INT AUTO_INCREMENT,
+	email VARCHAR(40),
+    nombreTerminal VARCHAR(40),
+    PRIMARY KEY(codTerminal, email),
+    CONSTRAINT FK_email FOREIGN KEY (email) REFERENCES usuario(email) ON DELETE CASCADE ON UPDATE CASCADE
+);
 
 CREATE TABLE nodo(
 codLog varchar(50) PRIMARY KEY,
@@ -38,8 +47,9 @@ REFERENCES fecha_registro(codFecha) ON DELETE CASCADE ON UPDATE CASCADE,
 CONSTRAINT FK_codClave FOREIGN KEY (codClave)
 REFERENCES palabra_clave(codClave) ON DELETE RESTRICT ON UPDATE CASCADE);
 
+
 Insert into palabra_clave values
-("WTS", "Web tier servlet"),
+("WTS", "Web tier servlet", null),
 ("ASC", "Application shutdown completed."),
 ("SUC", "Start up complete."),
 ("BDU", "Bridge Daemon is up."),
