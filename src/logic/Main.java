@@ -220,8 +220,9 @@ public class Main {
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 connection = DriverManager.getConnection(urls[usuario],USER,PASSWORD);
                 for(int i = 0; i < hilos.size(); i++){ // Iteramos cada hilo para obtener su información
+
                     numeroLinea = 0;
-                    ficheroName = arrayFile[i].getName();
+                    ficheroName = hilos.get(i).getLog().getName();
                     if (ficheroName.contains(".log") && ficheroName.contains(usuariosDatabase.get(userSelected))) {
                         hilos.get(i).join();
                         if (hilos.get(i).getListaLocal() != null){ //Obtenemos de los hilos una lista con toda la información en lineas
@@ -254,6 +255,8 @@ public class Main {
                                     preparedStatement.setString(5,lineParts[1]);
                                     preparedStatement.setString(6,lineParts[2]);
                                     preparedStatement.executeUpdate();
+                                    System.out.println("Sube");
+                                    System.out.println(ficheroName + codFecha + lineParts[0] +  lineParts[1]  + lineParts[2]);
                                 }
                             }
                         }

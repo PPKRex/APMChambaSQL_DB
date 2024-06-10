@@ -81,4 +81,6 @@ public class ThreadClass extends Thread {
     public List<String> getListaLocal(){
         return listaLocal;
     }
+
+    public File getLog(){return log;}
 }
