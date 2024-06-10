@@ -56,6 +56,10 @@
       cursor: inherit;
       display: block;
     }
+
+    .hidden {
+        display: none;
+    }
     </style>
     
     

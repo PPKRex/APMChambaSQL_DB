@@ -238,5 +238,40 @@ function cambiodireccion() {
 
 }
 
+function anadirPalabraclave($palabra) {
+
+    $email = $_SESSION['usuario'];
+    $codigoPal = inicialesMayusculas($palabra);
+    $conexion = conexionBD();
+
+    $sql = "INSERT INTO palabra_clave(codClave, nombre, email) VALUES ('$codigoPal', '$palabra', '$email')";
+
+    $result = mysqli_query($conexion, $sql);
+
+}
+
+function inicialesMayusculas($frase) {
+    // Convertimos toda la frase a minúsculas para asegurarnos de que no haya letras mayúsculas no deseadas
+    $frase = strtolower($frase);
+    // Capitalizamos las iniciales de cada palabra
+    $fraseCapitalizada = ucwords($frase);
+    // Separamos las palabras en un array
+    $palabras = explode(" ", $fraseCapitalizada);
+    // Inicializamos una cadena para las iniciales
+    $iniciales = "";
+
+    // Recorremos el array de palabras
+    foreach ($palabras as $palabra) {
+        // Añadimos la primera letra de cada palabra a la cadena de iniciales
+        $iniciales .= $palabra[0];
+    }
+
+    $numeroAleatorio = mt_rand(0, 1000);
+
+    // Concatenar el número aleatorio a las iniciales
+    $iniciales .= $numeroAleatorio;
+    // Devolvemos las iniciales en mayúsculas
+    return strtoupper($iniciales);
+}
 
 ?>
