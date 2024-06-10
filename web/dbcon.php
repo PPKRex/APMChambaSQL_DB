@@ -128,14 +128,15 @@ function botonNodos($fecha) {
 function tablaNodo($nodo, $fecha) {
 
     $conexion = conexionBD();
-
+    $userAPM = $_SESSION['usuario'];
+    
     //Sentencia para buscar segun los parametros pasados a la funcion
     $sql = "SELECT nodo.nombreNodo, palabra_clave.nombre, informacion.fechaInfo, informacion.tiempoTrans 
     FROM informacion 
     LEFT JOIN palabra_clave ON informacion.codClave = palabra_clave.codClave 
     LEFT JOIN nodo ON informacion.codLog = nodo.codLog
     LEFT JOIN fecha_registro ON fecha_registro.codFecha = informacion.codFecha
-    WHERE nodo.nombreNodo = '$nodo' AND informacion.codFecha = $fecha";
+    WHERE nodo.nombreNodo = '$nodo' AND informacion.codFecha = $fecha AND (palabra_clave.email = '$userAPM' OR palabra_clave.email = null)";
 
     $result = mysqli_query($conexion, $sql);
 
