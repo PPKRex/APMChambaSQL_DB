@@ -13,9 +13,10 @@ public class Main {
 
         //Variables de las Consultas SQL
         String insertFecha = "INSERT INTO fecha_registro (email,fechaRegistro) VALUES (?,?)";
-        String insertNodo = "INSERT IGNORE INTO nodo (codLog, nombreNodo) VALUES (?,?);";
-        String insertInfo = "INSERT IGNORE INTO informacion (codLog, codFecha, codInf, codClave, fechainfo, tiempoTrans) VALUES (?,?,?,?,?,?);";
-        String selectClave = "SELECT codClave, nombre FROM palabra_clave WHERE email = null;";
+        String insertTerminal = "INSERT IGNORE INTO terminal (email, nombreTerminal) VALUES (?,?);";
+        String insertNodo = "INSERT IGNORE INTO nodo (codLog, codTerminal, nombreNodo) VALUES (?,?,?);";
+        String insertInfo = "INSERT IGNORE INTO informacion (codLog,codTerminal, codFecha, codInf, codClave, fechainfo, tiempoTrans) VALUES (?,?,?,?,?,?,?);";
+        String selectClave = "SELECT codClave, nombre FROM palabra_clave WHERE email is null;";
         String selectClaveUsuario = "SELECT codClave, nombre FROM palabra_clave WHERE email = ?;";
         String selectUsers = "SELECT email FROM usuario;";
         int users = 0, userSelected = 0;
@@ -23,6 +24,7 @@ public class Main {
         String selectDATABASES = "SHOW DATABASES;";
         String selectMaxFecha = "SELECT codFecha FROM logsdata.fecha_registro ORDER BY codFecha desc limit 1;";
         String selectPassword = "SELECT passW FROM usuario Where email = ?;";
+        String selectTerminal = "SELECT codTerminal FROM terminal Where email = ? AND nombreTerminal = ?;";
         String[] urlcreates = new String[2];
         urlcreates[0] = URLCREATE;
         urlcreates[1] = URLCREATEIVAN;
@@ -164,6 +166,9 @@ public class Main {
                 while(resultSet.next()){  // Consultamos en la base de datos las palabras clave de usuario y llenamos el mapa con ellas.
                     palabrasBusqueda.put(resultSet.getString("codClave"), resultSet.getString("nombre"));
                 }
+                for (Map.Entry<String, String> entrada : palabrasBusqueda.entrySet()) {
+                    System.out.println("Criterio de busqueda: " + entrada.getValue());
+                }
                 // Guardamos en la base de datos la fecha en la que se ejecutó el programa
                 preparedStatement = connection.prepareStatement(insertFecha);
                 preparedStatement.setString(1,usuariosDatabase.get(userSelected));
@@ -191,19 +196,42 @@ public class Main {
 
             // Creación de hilos para lectura eficiente de logs, 1 hilo = 1 log
             for (int i = 0; i < arrayFile.length; i++){
+                int numeroTerminal = 0;
                 if (arrayFile[i].isDirectory()){
                     if (arrayFile[i].toString().contains(usuariosDatabase.get(userSelected))){
                         logFiles = arrayFile[i].listFiles();
-                        System.out.println("Terminal encontrada: " + arrayFile[i].toString());
-                        if (logFiles != null){
-                            for (int j = 0; j < logFiles.length; j++){
-                                ficheroName = logFiles[j].getName();
-                                if (ficheroName.contains(".log")) {
-                                    hilos.add(new ThreadClass(logFiles[j], palabrasBusqueda));
-                                    hilos.get(hilos.size()-1).start();
-                                }
+                        try{
+                            Class.forName("com.mysql.cj.jdbc.Driver");
+                            connection = DriverManager.getConnection(urls[usuario],USER,PASSWORD);
+                            System.out.println("Terminal encontrada: " + arrayFile[i].toString());
+                            String [] terminalArray = arrayFile[i].toString().split("___");
+                            String terminalName = terminalArray[1];
+                            preparedStatement = connection.prepareStatement(insertTerminal);
+                            preparedStatement.setString(1,usuariosDatabase.get(userSelected));
+                            preparedStatement.setString(2,terminalName);
+                            preparedStatement.executeUpdate();
+
+                            PreparedStatement sentence = connection.prepareStatement(selectTerminal);
+                            sentence.setString(1,usuariosDatabase.get(userSelected));
+                            sentence.setString(2,terminalName);
+                            ResultSet resultSet2 = sentence.executeQuery();
+                            while(resultSet2.next()){
+                                numeroTerminal = Integer.parseInt(resultSet2.getString("codTerminal"));
+                            }
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        } catch (ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                        for (int j = 0; j < logFiles.length; j++){
+                            ficheroName = logFiles[j].getName();
+                            if (ficheroName.contains(".log")) {
+                                System.out.println("\t"+ficheroName);
+                                hilos.add(new ThreadClass(logFiles[j], palabrasBusqueda, numeroTerminal));
+                                hilos.get(hilos.size()-1).start();
                             }
                         }
+
                     }
                 }
                 /*
@@ -220,26 +248,27 @@ public class Main {
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 connection = DriverManager.getConnection(urls[usuario],USER,PASSWORD);
                 for(int i = 0; i < hilos.size(); i++){ // Iteramos cada hilo para obtener su información
-
                     numeroLinea = 0;
                     ficheroName = hilos.get(i).getLog().getName();
-                    if (ficheroName.contains(".log") && ficheroName.contains(usuariosDatabase.get(userSelected))) {
+                    int terminal = hilos.get(i).getTerminal();
+                    if (ficheroName.contains(".log")) {
                         hilos.get(i).join();
                         if (hilos.get(i).getListaLocal() != null){ //Obtenemos de los hilos una lista con toda la información en lineas
                             logNameParts = ficheroName.split("\\."); //Obtenemos el nombre formateado del fichero de este hilo
-                            logNameParts = logNameParts[1].split("___");
-                            ficheroName = logNameParts[1];
                             System.out.println(ficheroName);
-                            if (logNameParts[1].contains("-")) {
-                                logNameParts = logNameParts[1].split("-");
+                            if (logNameParts[0].contains("-")) {
+                                logNameParts = logNameParts[0].split("-");
+                                logName = logNameParts[1];
+                            }else{
+                                logName = logNameParts[0];
                             }
-                            logName = logNameParts[1];
 
 
                             // Si es la primera vez que el log es leido añadiremos su nombre a la base de datos
                             preparedStatement = connection.prepareStatement(insertNodo);
                             preparedStatement.setString(1,ficheroName);
-                            preparedStatement.setString(2,logName);
+                            preparedStatement.setInt(2,terminal);
+                            preparedStatement.setString(3,logName);
                             preparedStatement.executeUpdate();
 
                             for (String linea: hilos.get(i).getListaLocal()){ //Iteramos la lista del hilo para subir cada linea a la base de datos
@@ -249,11 +278,12 @@ public class Main {
                                     lineParts = linea.split("/"); // Separamos el contenido de la linea y añadimos cada parte a una instrucción de la SQL
                                     preparedStatement = connection.prepareStatement(insertInfo);
                                     preparedStatement.setString(1,ficheroName);
-                                    preparedStatement.setInt(2, Integer.parseInt(codFecha));
-                                    preparedStatement.setString(3, String.valueOf(numeroLinea));
-                                    preparedStatement.setString(4,lineParts[0]);
-                                    preparedStatement.setString(5,lineParts[1]);
-                                    preparedStatement.setString(6,lineParts[2]);
+                                    preparedStatement.setInt(2,terminal);
+                                    preparedStatement.setInt(3, Integer.parseInt(codFecha));
+                                    preparedStatement.setString(4, String.valueOf(numeroLinea));
+                                    preparedStatement.setString(5,lineParts[0]);
+                                    preparedStatement.setString(6,lineParts[1]);
+                                    preparedStatement.setString(7,lineParts[2]);
                                     preparedStatement.executeUpdate();
                                     System.out.println("Sube");
                                     System.out.println(ficheroName + codFecha + lineParts[0] +  lineParts[1]  + lineParts[2]);
