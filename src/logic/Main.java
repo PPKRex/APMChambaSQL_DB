@@ -51,8 +51,9 @@ public class Main {
         int numeroLinea = 0, numeroLineasTotal = 0;
 
         // Variables encargadas del proceso de multihilo.
-        ThreadClass[] hilos;
+        List<ThreadClass> hilos = new ArrayList<>();
         File [] arrayFile = directorio.listFiles();
+        File [] logFiles;
         String ficheroName;
 
         // Variables encargadas de la conexión con la base de datos.
@@ -72,7 +73,6 @@ public class Main {
         }
         // Comprobación de existencia de ficheros en el directorio logs
         if(arrayFile!= null) {
-            hilos = new ThreadClass[arrayFile.length];
 
             // Comprobación de existencia de la BASEse de datos, si no existe la crearemos.
 
@@ -190,24 +190,41 @@ public class Main {
             }
 
             // Creación de hilos para lectura eficiente de logs, 1 hilo = 1 log
-            for (int i = 0; i < hilos.length; i++){
+            for (int i = 0; i < arrayFile.length; i++){
+                if (arrayFile[i].isDirectory()){
+                    if (arrayFile[i].toString().contains(usuariosDatabase.get(userSelected))){
+                        logFiles = arrayFile[i].listFiles();
+                        System.out.println("Terminal encontrada: " + arrayFile[i].toString());
+                        if (logFiles != null){
+                            for (int j = 0; j < logFiles.length; j++){
+                                ficheroName = logFiles[j].getName();
+                                if (ficheroName.contains(".log")) {
+                                    hilos.add(new ThreadClass(logFiles[j], palabrasBusqueda));
+                                    hilos.get(hilos.size()-1).start();
+                                }
+                            }
+                        }
+                    }
+                }
+                /*
                 ficheroName = arrayFile[i].getName();
                 if (ficheroName.contains(".log")) {
                     hilos[i] = new ThreadClass(arrayFile[i],palabrasBusqueda);
                     hilos[i].start();
 
                 }
+                */
             }
 
             try{
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 connection = DriverManager.getConnection(urls[usuario],USER,PASSWORD);
-                for(int i = 0; i < hilos.length; i++){ // Iteramos cada hilo para obtener su información
+                for(int i = 0; i < hilos.size(); i++){ // Iteramos cada hilo para obtener su información
                     numeroLinea = 0;
                     ficheroName = arrayFile[i].getName();
                     if (ficheroName.contains(".log") && ficheroName.contains(usuariosDatabase.get(userSelected))) {
-                        hilos[i].join();
-                        if (hilos[i].getListaLocal() != null){ //Obtenemos de los hilos una lista con toda la información en lineas
+                        hilos.get(i).join();
+                        if (hilos.get(i).getListaLocal() != null){ //Obtenemos de los hilos una lista con toda la información en lineas
                             logNameParts = ficheroName.split("\\."); //Obtenemos el nombre formateado del fichero de este hilo
                             logNameParts = logNameParts[1].split("___");
                             ficheroName = logNameParts[1];
@@ -224,7 +241,7 @@ public class Main {
                             preparedStatement.setString(2,logName);
                             preparedStatement.executeUpdate();
 
-                            for (String linea: hilos[i].getListaLocal()){ //Iteramos la lista del hilo para subir cada linea a la base de datos
+                            for (String linea: hilos.get(i).getListaLocal()){ //Iteramos la lista del hilo para subir cada linea a la base de datos
                                 numeroLinea++;
                                 numeroLineasTotal++;
                                 if (linea  != null){
