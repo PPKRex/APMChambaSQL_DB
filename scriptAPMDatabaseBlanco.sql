@@ -21,8 +21,12 @@ CREATE TABLE terminal (
 );
 
 CREATE TABLE nodo(
-codLog varchar(50) PRIMARY KEY,
-nombreNodo char(20));
+    codLog varchar(50),
+    codTerminal INT,
+    nombreNodo char(20),
+    PRIMARY KEY(codLog, codTerminal),
+    CONSTRAINT FK_codTerminalA FOREIGN KEY (codTerminal) REFERENCES terminal(codTerminal)
+);
 
 CREATE TABLE fecha_registro (
     codFecha INT AUTO_INCREMENT,
@@ -34,14 +38,16 @@ CREATE TABLE fecha_registro (
 
 CREATE TABLE informacion(
 codLog varchar(50),
+codTerminal INT,
 codFecha INT,
 codInf char(10),
 codClave char(6),
 fechaInfo DATETIME,
 tiempoTrans char(30),
-PRIMARY KEY(codLog, codFecha, codInf),
+PRIMARY KEY(codLog, codTerminal, codFecha, codInf),
 CONSTRAINT FK_codLog FOREIGN KEY (codLog)
 REFERENCES nodo(codLog) ON DELETE CASCADE ON UPDATE CASCADE,
+CONSTRAINT FK_codTerminalB FOREIGN KEY (codTerminal) REFERENCES terminal(codTerminal),
 CONSTRAINT FK_codFecha FOREIGN KEY (codFecha)
 REFERENCES fecha_registro(codFecha) ON DELETE CASCADE ON UPDATE CASCADE,
 CONSTRAINT FK_codClave FOREIGN KEY (codClave)

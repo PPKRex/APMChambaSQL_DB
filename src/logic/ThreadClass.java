@@ -13,10 +13,12 @@ public class ThreadClass extends Thread {
     // Variables locales y constructor de cada hilo
     private List<String> listaLocal = new ArrayList<>();
     private File log;
+    private int numeroTerminal;
     private Map<String, String> palabrasBusqueda;
-    public ThreadClass(File log, Map<String, String> palabrasBusqueda){
+    public ThreadClass(File log, Map<String, String> palabrasBusqueda, int numeroTerminal){
         this.log = log;
         this.palabrasBusqueda = new HashMap<>(palabrasBusqueda);
+        this.numeroTerminal = numeroTerminal;
     }
 
     @Override
@@ -44,7 +46,6 @@ public class ThreadClass extends Thread {
             System.out.println("El archivo no se puede leer");
             throw new RuntimeException(e);
         }
-
         try{
             while ((line = bufR.readLine()) != null) { // Iteramos el fichero log
                 numeroLinea++;
@@ -71,6 +72,9 @@ public class ThreadClass extends Thread {
                     }
                 }
             }
+            for (int i = 0; i < listaLocal.size(); i++){
+                //System.out.println(listaLocal.get(i));
+            }
             bufR.close();
         }catch(IOException e){
             e.printStackTrace();
@@ -83,4 +87,5 @@ public class ThreadClass extends Thread {
     }
 
     public File getLog(){return log;}
+    public int getTerminal(){return numeroTerminal;}
 }
