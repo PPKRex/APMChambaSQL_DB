@@ -15,7 +15,8 @@ public class Main {
         String insertFecha = "INSERT INTO fecha_registro (email,fechaRegistro) VALUES (?,?)";
         String insertNodo = "INSERT IGNORE INTO nodo (codLog, nombreNodo) VALUES (?,?);";
         String insertInfo = "INSERT IGNORE INTO informacion (codLog, codFecha, codInf, codClave, fechainfo, tiempoTrans) VALUES (?,?,?,?,?,?);";
-        String selectClave = "SELECT codClave, nombre FROM palabra_clave;";
+        String selectClave = "SELECT codClave, nombre FROM palabra_clave WHERE email = null;";
+        String selectClaveUsuario = "SELECT codClave, nombre FROM palabra_clave WHERE email = ?;";
         String selectUsers = "SELECT email FROM usuario;";
         int users = 0, userSelected = 0;
         String password = "", passwordUser;
@@ -154,7 +155,13 @@ public class Main {
                 connection = DriverManager.getConnection(urls[usuario],USER,PASSWORD);
                 statement = connection.createStatement();
                 resultSet = statement.executeQuery(selectClave);
-                while(resultSet.next()){  // Consultamos en la base de datos las palabras clave y llenamos el mapa con ellas.
+                while(resultSet.next()){  // Consultamos en la base de datos las palabras clave comunes y llenamos el mapa con ellas.
+                    palabrasBusqueda.put(resultSet.getString("codClave"), resultSet.getString("nombre"));
+                }
+                PreparedStatement sentence = connection.prepareStatement(selectClaveUsuario);
+                sentence.setString(1,usuariosDatabase.get(userSelected));
+                resultSet = sentence.executeQuery();
+                while(resultSet.next()){  // Consultamos en la base de datos las palabras clave de usuario y llenamos el mapa con ellas.
                     palabrasBusqueda.put(resultSet.getString("codClave"), resultSet.getString("nombre"));
                 }
                 // Guardamos en la base de datos la fecha en la que se ejecutó el programa

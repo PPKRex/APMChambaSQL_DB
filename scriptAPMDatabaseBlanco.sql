@@ -17,7 +17,7 @@ CREATE TABLE terminal (
 	email VARCHAR(40),
     nombreTerminal VARCHAR(40),
     PRIMARY KEY(codTerminal, email),
-    CONSTRAINT FK_email FOREIGN KEY (email) REFERENCES usuario(email) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT FK_emailA FOREIGN KEY (email) REFERENCES usuario(email) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE nodo(
@@ -29,7 +29,7 @@ CREATE TABLE fecha_registro (
     email VARCHAR(40),
     fechaRegistro DATETIME,
     PRIMARY KEY(codFecha, email),
-    CONSTRAINT FK_email FOREIGN KEY (email) REFERENCES usuario(email) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT FK_emailB FOREIGN KEY (email) REFERENCES usuario(email) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE informacion(
