@@ -136,7 +136,7 @@ function tablaNodo($nodo, $fecha) {
     LEFT JOIN palabra_clave ON informacion.codClave = palabra_clave.codClave 
     LEFT JOIN nodo ON informacion.codLog = nodo.codLog
     LEFT JOIN fecha_registro ON fecha_registro.codFecha = informacion.codFecha
-    WHERE nodo.nombreNodo = '$nodo' AND informacion.codFecha = $fecha AND (palabra_clave.email = '$userAPM' OR palabra_clave.email = null)";
+    WHERE nodo.nombreNodo = '$nodo' AND informacion.codFecha = $fecha AND (palabra_clave.email = '$userAPM' OR palabra_clave.email IS NULL)";
 
     $result = mysqli_query($conexion, $sql);
 
