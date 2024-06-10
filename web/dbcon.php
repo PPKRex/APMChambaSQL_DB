@@ -129,7 +129,7 @@ function tablaNodo($nodo, $fecha) {
 
     $conexion = conexionBD();
     $userAPM = $_SESSION['usuario'];
-    
+
     //Sentencia para buscar segun los parametros pasados a la funcion
     $sql = "SELECT nodo.nombreNodo, palabra_clave.nombre, informacion.fechaInfo, informacion.tiempoTrans 
     FROM informacion 
@@ -220,6 +220,9 @@ function tituloLog($fecha) {
     while ($row = mysqli_fetch_assoc($result)) {
 
         echo $row['fechaRegistro'];
+        if (isset($_GET['nodo'])) {
+            echo ' ' . $_GET['nodo'];
+        }
 
     } 
 }
