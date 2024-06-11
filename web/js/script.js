@@ -1,17 +1,29 @@
 // Verificar si el elemento de selección existe
-var seleccion = document.getElementById("elemento");
+var fechaSelect = document.getElementById("fechaSelect");
+var terminalSelect = document.getElementById("terminalSelect");
 
-if (seleccion) {
-    // Si existe, agregar el event listener
-    seleccion.addEventListener('change', (event) => {
-        
+if (fechaSelect) {
+    // Agregar event listener para el select de fecha
+    fechaSelect.addEventListener('change', (event) => {
         // Obtener el valor seleccionado
         const selectedValue = event.target.value;
-        
         // Actualizar la URL del formulario cuando cambia la selección
         const currentUrl = new URL(window.location.href);
         currentUrl.searchParams.set('fecha', selectedValue);
-        
+        // Redireccionar a la nueva URL
+        window.location.href = currentUrl;
+        console.log(currentUrl);
+    });
+}
+
+if (terminalSelect) {
+    // Agregar event listener para el select de terminal
+    terminalSelect.addEventListener('change', (event) => {
+        // Obtener el valor seleccionado
+        const selectedValue = event.target.value;
+        // Actualizar la URL del formulario cuando cambia la selección
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('terminal', selectedValue);
         // Redireccionar a la nueva URL
         window.location.href = currentUrl;
         console.log(currentUrl);

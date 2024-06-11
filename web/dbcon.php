@@ -69,9 +69,9 @@ function login($usuario, $email, $pass) {
 }
 
 //Función que muestra todos los nodos de la base de datos en forma de botón.
-function botonNodos($fecha) {
+function botonNodos($fecha, $terminal) {
     $conexion = conexionBD();
-    $sql = "SELECT nombreNodo FROM nodo GROUP BY nombreNodo";
+    $sql = "SELECT nombreNodo FROM nodo WHERE codTerminal = $terminal GROUP BY nombreNodo";
     $result = mysqli_query($conexion, $sql);
 
     // Inicializar arrays para cada columna
@@ -113,7 +113,7 @@ function botonNodos($fecha) {
         $lineaDeBotones .= '<div class="col ' . $colClass . '"><h5 class="toggle-column" style="cursor: pointer;">' . $columna . '</h5>';
         $lineaDeBotones .= '<div class="column-content" style="display: none;">';
         foreach ($botones as $boton) {
-            $url = 'index.php?fecha=' . $fecha . '&nodo=' . $boton;
+            $url = 'index.php?fecha=' . $fecha . '&nodo=' . $boton . '&terminal=' . $terminal;
             $lineaDeBotones .= '<div><a href="' . $url . '" class="botonNodos btn btn-primary ' . $colClass . '" data-nodo="' . $boton . '">' . $boton . '</a></div>';
         }
         $lineaDeBotones .= '</div></div>';
@@ -125,7 +125,7 @@ function botonNodos($fecha) {
 }
 
 //Función que crea la tabla con todos los datos pasandole el nodo a buscar y la fecha registro.
-function tablaNodo($nodo, $fecha) {
+function tablaNodo($nodo, $fecha, $terminal) {
 
     $conexion = conexionBD();
     $userAPM = $_SESSION['usuario'];
@@ -136,7 +136,7 @@ function tablaNodo($nodo, $fecha) {
     LEFT JOIN palabra_clave ON informacion.codClave = palabra_clave.codClave 
     LEFT JOIN nodo ON informacion.codLog = nodo.codLog
     LEFT JOIN fecha_registro ON fecha_registro.codFecha = informacion.codFecha
-    WHERE nodo.nombreNodo = '$nodo' AND informacion.codFecha = $fecha AND (palabra_clave.email = '$userAPM' OR palabra_clave.email IS NULL)";
+    WHERE nodo.nombreNodo = '$nodo' AND informacion.codFecha = $fecha AND (palabra_clave.email = '$userAPM' OR palabra_clave.email IS NULL) AND nodo.codTerminal = $terminal";
 
     $result = mysqli_query($conexion, $sql);
 
@@ -153,7 +153,7 @@ function tablaNodo($nodo, $fecha) {
 }
 
 // Igual que la anterior pero ordenada
-function tablaOrden($nodo, $orden, $direccion, $fecha) {
+function tablaOrden($nodo, $orden, $direccion, $fecha, $terminal) {
 
     $conexion = conexionBD();
     $userAPM = $_SESSION['usuario'];
@@ -163,7 +163,7 @@ function tablaOrden($nodo, $orden, $direccion, $fecha) {
     LEFT JOIN palabra_clave ON informacion.codClave = palabra_clave.codClave 
     LEFT JOIN nodo ON informacion.codLog = nodo.codLog
     LEFT JOIN fecha_registro ON fecha_registro.codFecha = informacion.codFecha
-    WHERE nodo.nombreNodo = '$nodo' AND informacion.codFecha = $fecha AND (palabra_clave.email = '$userAPM' OR palabra_clave.email = null)
+    WHERE nodo.nombreNodo = '$nodo' AND informacion.codFecha = $fecha AND (palabra_clave.email = '$userAPM' OR palabra_clave.email IS NULL) AND nodo.codTerminal = $terminal
     ORDER BY $orden $direccion"; // Según a qué campo de la tabla pulses, se ordenará en función de ese campo (orden)
     // Y si vuelve a pulsar, irá cambiando su direccion entre ascendente y descendente, haciendo que actualice la tabla
 
@@ -221,7 +221,7 @@ function tituloLog($fecha) {
 
         echo $row['fechaRegistro'];
         if (isset($_GET['nodo'])) {
-            echo ' ' . $_GET['nodo'];
+            echo ' | ' . $_GET['nodo'];
         }
 
     } 
@@ -279,4 +279,27 @@ function inicialesMayusculas($frase) {
     return strtoupper($iniciales);
 }
 
+function listadoTerminales() {
+
+    $conexion = conexionBD();
+
+    $email = $_SESSION['usuario'];
+
+    // Buscamos todas las fechas con su código que tengamos en la base de datos
+    $sql = "SELECT codTerminal, nombreTerminal
+            FROM terminal
+            WHERE email = '$email'";
+
+    $result = mysqli_query($conexion, $sql);
+
+    // Creamos una de las opciones del desplegable que no se pueda elegir con el atributo disabled
+    echo "<option value=\"\" disabled selected>Selecciona una terminal</option>";
+
+    // Y mostramos los resultados de la consulta, donde el valor será el código de la fecha y el texto visible, la fecha del registro
+    while ($row = mysqli_fetch_assoc($result)) {
+        echo "<option value=\"" . $row['codTerminal'] . "\">" . $row['nombreTerminal'] . "</option>";
+    }
+
+    
+}
 ?>
