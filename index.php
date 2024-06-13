@@ -26,7 +26,7 @@
                 <div class="card-header">
                     <h4>
                         
-                        Análisis de logs <?php if(isset($_GET['fecha'])) { tituloLog($_GET['fecha']);  } //Función en dbcon.php ?>
+                        <?php tituloLog(); //Función en dbcon.php ?>
                         
                         <div id="drop_zone" class="btn btn-primary float-end"> Añadir palabra clave </div>
                         
@@ -54,7 +54,6 @@
                     data-toolbar="#toolbar">
                     <?php if(isset($_GET['nodo']) && isset($_GET['fecha'])) { //Controla que existan en la URL para escribirlo ?>
                         <tr>
-                            <th><a href="<?php if(isset($_GET['nodo'])) { echo "?nodo=" . $_GET['nodo']; echo "&fecha=" . $_GET['fecha']; echo "&terminal=" . $_GET['terminal'];}?> &orden=nombreNodo&cambiar_direccion"> Nodo </a></th>
                             <th><a href="<?php if(isset($_GET['nodo'])) { echo "?nodo=" . $_GET['nodo']; echo "&fecha=" . $_GET['fecha']; echo "&terminal=" . $_GET['terminal']; }?>&orden=nombre&cambiar_direccion"> Información </a></th>
                             <th><a href="<?php if(isset($_GET['nodo'])) { echo "?nodo=" . $_GET['nodo']; echo "&fecha=" . $_GET['fecha']; echo "&terminal=" . $_GET['terminal'];}?>&orden=fechaInfo&cambiar_direccion"> Fecha </a></th>
                             <th><a href="<?php if(isset($_GET['nodo'])) { echo "?nodo=" . $_GET['nodo']; echo "&fecha=" . $_GET['fecha']; echo "&terminal=" . $_GET['terminal'];}?>&orden=tiempoTrans&cambiar_direccion"> Tiempo ejecución </a></th>

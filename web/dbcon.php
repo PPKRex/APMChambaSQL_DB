@@ -143,7 +143,6 @@ function tablaNodo($nodo, $fecha, $terminal) {
     //Muestra haciendo un bucle todos los resultados en la tabla para cada fila
     while ($row = mysqli_fetch_assoc($result)) {
         echo "<tr>";
-        echo "<td>" . $row['nombreNodo'] . "</td>";
         echo "<td>" . $row['nombre'] . "</td>";
         echo "<td>" . $row['fechaInfo'] . "</td>";
         echo "<td>" . $row['tiempoTrans'] . "</td>";
@@ -172,7 +171,6 @@ function tablaOrden($nodo, $orden, $direccion, $fecha, $terminal) {
     //Muestra la tabla ya ordenada
     while ($row = mysqli_fetch_assoc($result)) {
         echo "<tr>";
-        echo "<td>" . $row['nombreNodo'] . "</td>";
         echo "<td>" . $row['nombre'] . "</td>";
         echo "<td>" . $row['fechaInfo'] . "</td>";
         echo "<td>" . $row['tiempoTrans'] . "</td>";
@@ -207,24 +205,47 @@ function generarListado() {
 
 // Función que recoge de la URL la fecha registro del desplegable y la pasa por parámetro para buscarla en la base de datos
 // Devuelve la clave primaria y la escribe en el encabezado de la tabla
-function tituloLog($fecha) {
+function tituloLog() {
     $conexion = conexionBD();
 
 
-    $sql = "SELECT fechaRegistro
+    if(isset($_GET['fecha']) && isset($_GET['terminal'])) {
+
+        $fecha = $_GET['fecha'];
+        $term = $_GET['terminal'];
+
+        $sql = "SELECT fechaRegistro
             FROM fecha_registro
             WHERE codFecha = $fecha";
 
-    $result = mysqli_query($conexion, $sql);
+        $sql2 = "SELECT nombreTerminal
+                 FROM terminal
+                 WHERE codTerminal = $term";
 
-    while ($row = mysqli_fetch_assoc($result)) {
+        $result = mysqli_query($conexion, $sql);
+        $result2 = mysqli_query($conexion, $sql2);
 
-        echo $row['fechaRegistro'];
-        if (isset($_GET['nodo'])) {
-            echo ' | ' . $_GET['nodo'];
+        while ($row = mysqli_fetch_assoc($result)) {
+
+                echo $row['fechaRegistro'];
+
+                while ($row2 = mysqli_fetch_assoc($result2)) { {
+
+                echo ' | ' . $row2['nombreTerminal'];
+
+                if (isset($_GET['nodo'])) {
+
+                    echo ' | ' . $_GET['nodo'];
+                }
+            }
+            }
+
+        } 
         }
-
-    } 
+    else {
+        echo "Análisis de Logs.";
+    }
+    
 }
 
 // Función que cambia la variable de sesión de ASC a DESC y viceversa cuando se le llama para la sentencia de ordenar.
