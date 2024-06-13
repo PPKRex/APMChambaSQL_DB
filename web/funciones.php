@@ -3,13 +3,30 @@ session_start();
 require_once 'dbcon.php';
 // Directorio donde se guardará el archivo
 $uploadDir = 'logs/';
+if(isset($_GET['terminal'])) {
+
+    $terminal = $_GET['terminal'];
+
+    $conexion = conexionBD();
+
+    $sql = "SELECT nombreTerminal FROM terminal WHERE codTerminal = $terminal";
+
+    $result = mysqli_query($conexion, $sql);
+
+    while ($row = mysqli_fetch_assoc($result)) {
+
+        $term = $row['nombreTerminal'];
+
+    }
+
+}
 
 // Verificar si se ha subido algún archivo
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file']) && isset($_SESSION['usuario'])) {
     // Verificar si se subió un archivo
     if ($_FILES['file']['error'] === UPLOAD_ERR_OK) {
         // Ruta completa del archivo en el servidor
-        $uploadDir = 'logs/'; // Ajusta esta ruta según tu configuración
+        $uploadDir = 'logs/'.$term.'/'; // Ajusta esta ruta según tu configuración
         $uploadFile = $uploadDir . $_SESSION['usuario'] . "___" . basename($_FILES['file']['name']);
 
         // Verificar si el archivo es un ZIP

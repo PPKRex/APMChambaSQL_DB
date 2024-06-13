@@ -43,8 +43,11 @@ if (terminalSelect) {
       function uploadFile(file) {
         var formData = new FormData();
         formData.append('file', file);
+        
+        var urlParams = new URLSearchParams(window.location.search);
+        var terminal = urlParams.get('terminal');
   
-        fetch("index.php", {
+        fetch("index.php?terminal="+ terminal, {
           method: 'POST',
           body: formData
         })
