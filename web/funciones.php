@@ -9,13 +9,14 @@ if(isset($_GET['terminal'])) {
 
     $conexion = conexionBD();
 
-    $sql = "SELECT nombreTerminal FROM terminal WHERE codTerminal = $terminal";
+    $sql = "SELECT nombreTerminal, codTerminal FROM terminal WHERE codTerminal = '$terminal'";
 
     $result = mysqli_query($conexion, $sql);
 
     while ($row = mysqli_fetch_assoc($result)) {
 
         $term = $row['nombreTerminal'];
+        $codterm = $row['codTerminal'];
 
     }
 
@@ -26,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file']) && isset($_S
     // Verificar si se subió un archivo
     if ($_FILES['file']['error'] === UPLOAD_ERR_OK) {
         // Ruta completa del archivo en el servidor
-        $uploadDir = 'logs/'.$term.'/'; // Ajusta esta ruta según tu configuración
+        $uploadDir = 'logs/'.$codterm.'_'.$term.'/'; // Ajusta esta ruta según tu configuración
         $uploadFile = $uploadDir . $_SESSION['usuario'] . "___" . basename($_FILES['file']['name']);
 
         // Verificar si el archivo es un ZIP
