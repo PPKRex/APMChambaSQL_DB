@@ -40,7 +40,7 @@ function login($usuario, $email, $pass) {
 
     //Si el resultado da alguna coincidencia, se crea la variable de sesion del usuario y se redirige a la pagina principal
     if (mysqli_num_rows($result) >= 1) {
-        $_SESSION['usuario'] = $usuario;
+        $_SESSION['usuario'] = $email;
         
         header("Location: ../index.php");
     }
@@ -52,19 +52,10 @@ function login($usuario, $email, $pass) {
     }
     //Si usuario != null, entonces lo interpreta como un registro y lo añade a la base de datos.
     else {
-
-        $sqlcompro = "SELECT email FROM usuario WHERE email = '$email'";
-        $result2 = mysqli_query($conexion, $sqlcompro);
-
-        if($result2){
-            header("Location: login.php");
-        }
-        else{
-
         $sql = "INSERT INTO usuario(email, userName, passW) VALUES ('$email', '$usuario', '$pass')";
         $result = mysqli_query($conexion, $sql);
         
-        if ($result) {
+        if ($result != false) {
             $_SESSION['usuario'] = $email;
             header("Location: ../index.php");
         }
@@ -74,7 +65,6 @@ function login($usuario, $email, $pass) {
         }
         
     }
-}
 
 }
 
