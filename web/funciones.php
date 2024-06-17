@@ -99,35 +99,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['loginSubmit'])) {
     $loginEmail = $_POST["loginEmail"];
     $loginPassword = $_POST["loginPassword"];
 
-    $conexion = conexionBD();
-    
-    //Se hace la consulta con los datos recogidos
-    $sql = "SELECT email 
-            FROM usuario 
-            WHERE email like '$loginEmail' AND passW like '$loginPassword'"; 
-    
-            $result = mysqli_query($conexion, $sql);
-    
-            //Si hay resultados, entonces se realiza la asignacion de la variable de sesión
-            //Creo que este if no es necesario y podria llamar a la funcion en dbcon.php, pero no lo he comprobado
-            if ($result) {
-                $_SESSION['usuario'] = $loginEmail;
-                // Comprueba que se asigna la variable de sesion
-                if (isset($_SESSION['usuario'])) {
-                    echo "Session set: " . $_SESSION['usuario'];
-                } else {
-                    echo "Session not set";
-                }
-                // Redirecciona a la pagina principal
-                header("Location: ../index.php");
-                exit();
-            } else {
-                // Comprueba si hay errores
-                echo "Error: " . mysqli_error($conexion);
-                // Redirecciona
-                header("Location: ../index.php");
-                exit();
-            }
+    login(null, $loginEmail, $loginPassword);
     
     // Aquí puedes realizar la validación y autenticación del usuario
 }
