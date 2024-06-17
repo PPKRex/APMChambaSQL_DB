@@ -71,7 +71,7 @@ function login($usuario, $email, $pass) {
 //Función que muestra todos los nodos de la base de datos en forma de botón.
 function botonNodos($fecha, $terminal) {
     $conexion = conexionBD();
-    $sql = "SELECT nombreNodo FROM nodo WHERE codTerminal = $terminal GROUP BY nombreNodo";
+    $sql = "SELECT nombreNodo FROM nodo WHERE codTerminal = '$terminal' GROUP BY nombreNodo";
     $result = mysqli_query($conexion, $sql);
 
     // Inicializar arrays para cada columna
@@ -136,7 +136,7 @@ function tablaNodo($nodo, $fecha, $terminal) {
     LEFT JOIN palabra_clave ON informacion.codClave = palabra_clave.codClave 
     LEFT JOIN nodo ON informacion.codLog = nodo.codLog
     LEFT JOIN fecha_registro ON fecha_registro.codFecha = informacion.codFecha
-    WHERE nodo.nombreNodo = '$nodo' AND informacion.codFecha = $fecha AND (palabra_clave.email = '$userAPM' OR palabra_clave.email IS NULL) AND nodo.codTerminal = $terminal";
+    WHERE nodo.nombreNodo = '$nodo' AND informacion.codFecha = $fecha AND (palabra_clave.email = '$userAPM' OR palabra_clave.email IS NULL) AND nodo.codTerminal = '$terminal'";
 
     $result = mysqli_query($conexion, $sql);
 
@@ -220,7 +220,7 @@ function tituloLog() {
 
         $sql2 = "SELECT nombreTerminal
                  FROM terminal
-                 WHERE codTerminal = $term";
+                 WHERE codTerminal = '$term'";
 
         $result = mysqli_query($conexion, $sql);
         $result2 = mysqli_query($conexion, $sql2);
@@ -304,12 +304,9 @@ function listadoTerminales() {
 
     $conexion = conexionBD();
 
-    $email = $_SESSION['usuario'];
-
     // Buscamos todas las fechas con su código que tengamos en la base de datos
     $sql = "SELECT codTerminal, nombreTerminal
-            FROM terminal
-            WHERE email = '$email'";
+            FROM terminal";
 
     $result = mysqli_query($conexion, $sql);
 

@@ -59,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file']) && isset($_S
             } else {
                 // Error al mover el archivo subido
                 http_response_code(500);
+                
             }
         } else {
             // El archivo subido no es un archivo ZIP
