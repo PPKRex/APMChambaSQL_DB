@@ -13,16 +13,13 @@ nombre varchar(70),
 email varchar(40));
 
 CREATE TABLE terminal (
-    codTerminal INT AUTO_INCREMENT,
-	email VARCHAR(40),
-    nombreTerminal VARCHAR(40),
-    PRIMARY KEY(codTerminal, email),
-    CONSTRAINT FK_emailA FOREIGN KEY (email) REFERENCES usuario(email) ON DELETE CASCADE ON UPDATE CASCADE
+    codTerminal VARCHAR(40) PRIMARY KEY ,
+    nombreTerminal VARCHAR(40)
 );
 
 CREATE TABLE nodo(
     codLog varchar(50),
-    codTerminal INT,
+    codTerminal VARCHAR(40),
     nombreNodo char(20),
     PRIMARY KEY(codLog, codTerminal),
     CONSTRAINT FK_codTerminalA FOREIGN KEY (codTerminal) REFERENCES terminal(codTerminal)
@@ -38,7 +35,7 @@ CREATE TABLE fecha_registro (
 
 CREATE TABLE informacion(
 codLog varchar(50),
-codTerminal INT,
+codTerminal VARCHAR(40),
 codFecha INT,
 codInf char(10),
 codClave char(6),
@@ -67,5 +64,11 @@ Insert into palabra_clave values
 ("WRSN4", "Waiting for READY signal from N4.", null),
 ("LXPSO", "loading xps object", null),
 ("ARABIS", "Awaiting reconnect attempts before initiating shutdown.", null);
+
+Insert into terminal values
+("ALG", "Algeciras"),
+("VAL", "Valencia"),
+("BARC", "Barcelona"),
+("ANGL", "Los Ángeles");
 
 

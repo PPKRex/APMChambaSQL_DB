@@ -13,12 +13,12 @@ public class ThreadClass extends Thread {
     // Variables locales y constructor de cada hilo
     private List<String> listaLocal = new ArrayList<>();
     private File log;
-    private int numeroTerminal;
+    private String nombreTerminal;
     private Map<String, String> palabrasBusqueda;
-    public ThreadClass(File log, Map<String, String> palabrasBusqueda, int numeroTerminal){
+    public ThreadClass(File log, Map<String, String> palabrasBusqueda, String nombreTerminal){
         this.log = log;
         this.palabrasBusqueda = new HashMap<>(palabrasBusqueda);
-        this.numeroTerminal = numeroTerminal;
+        this.nombreTerminal = nombreTerminal;
     }
 
     @Override
@@ -87,5 +87,5 @@ public class ThreadClass extends Thread {
     }
 
     public File getLog(){return log;}
-    public int getTerminal(){return numeroTerminal;}
+    public String getTerminal(){return nombreTerminal;}
 }

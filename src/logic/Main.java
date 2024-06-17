@@ -13,7 +13,6 @@ public class Main {
 
         //Variables de las Consultas SQL
         String insertFecha = "INSERT INTO fecha_registro (email,fechaRegistro) VALUES (?,?)";
-        String insertTerminal = "INSERT IGNORE INTO terminal (email, nombreTerminal) VALUES (?,?);";
         String insertNodo = "INSERT IGNORE INTO nodo (codLog, codTerminal, nombreNodo) VALUES (?,?,?);";
         String insertInfo = "INSERT IGNORE INTO informacion (codLog,codTerminal, codFecha, codInf, codClave, fechainfo, tiempoTrans) VALUES (?,?,?,?,?,?,?);";
         String selectClave = "SELECT codClave, nombre FROM palabra_clave WHERE email is null;";
@@ -24,7 +23,7 @@ public class Main {
         String selectDATABASES = "SHOW DATABASES;";
         String selectMaxFecha = "SELECT codFecha FROM logsdata.fecha_registro ORDER BY codFecha desc limit 1;";
         String selectPassword = "SELECT passW FROM usuario Where email = ?;";
-        String selectTerminal = "SELECT codTerminal FROM terminal Where email = ? AND nombreTerminal = ?;";
+        String selectTerminal = "SELECT codTerminal, nombreTerminal FROM terminal WHERE nombreTerminal = ?";
         String[] urlcreates = new String[2];
         urlcreates[0] = URLCREATE;
         urlcreates[1] = URLCREATEIVAN;
@@ -196,7 +195,7 @@ public class Main {
 
             // Creación de hilos para lectura eficiente de logs, 1 hilo = 1 log
             for (int i = 0; i < arrayFile.length; i++){
-                int numeroTerminal = 0;
+                String terminal = "";
                 if (arrayFile[i].isDirectory()){
                     if (arrayFile[i].toString().contains(usuariosDatabase.get(userSelected))){
                         logFiles = arrayFile[i].listFiles();
@@ -204,19 +203,13 @@ public class Main {
                             Class.forName("com.mysql.cj.jdbc.Driver");
                             connection = DriverManager.getConnection(urls[usuario],USER,PASSWORD);
                             System.out.println("Terminal encontrada: " + arrayFile[i].toString());
-                            String [] terminalArray = arrayFile[i].toString().split("___");
-                            String terminalName = terminalArray[1];
-                            preparedStatement = connection.prepareStatement(insertTerminal);
-                            preparedStatement.setString(1,usuariosDatabase.get(userSelected));
-                            preparedStatement.setString(2,terminalName);
-                            preparedStatement.executeUpdate();
+                            String terminalName = arrayFile[i].toString();
 
                             PreparedStatement sentence = connection.prepareStatement(selectTerminal);
-                            sentence.setString(1,usuariosDatabase.get(userSelected));
-                            sentence.setString(2,terminalName);
+                            sentence.setString(1,terminalName);
                             ResultSet resultSet2 = sentence.executeQuery();
                             while(resultSet2.next()){
-                                numeroTerminal = Integer.parseInt(resultSet2.getString("codTerminal"));
+                                terminal = resultSet2.getString("codTerminal");
                             }
                         } catch (SQLException e) {
                             throw new RuntimeException(e);
@@ -227,7 +220,7 @@ public class Main {
                             ficheroName = logFiles[j].getName();
                             if (ficheroName.contains(".log")) {
                                 System.out.println("\t"+ficheroName);
-                                hilos.add(new ThreadClass(logFiles[j], palabrasBusqueda, numeroTerminal));
+                                hilos.add(new ThreadClass(logFiles[j], palabrasBusqueda, terminal));
                                 hilos.get(hilos.size()-1).start();
                             }
                         }
@@ -250,7 +243,7 @@ public class Main {
                 for(int i = 0; i < hilos.size(); i++){ // Iteramos cada hilo para obtener su información
                     numeroLinea = 0;
                     ficheroName = hilos.get(i).getLog().getName();
-                    int terminal = hilos.get(i).getTerminal();
+                    String terminal = hilos.get(i).getTerminal();
                     if (ficheroName.contains(".log")) {
                         hilos.get(i).join();
                         if (hilos.get(i).getListaLocal() != null){ //Obtenemos de los hilos una lista con toda la información en lineas
@@ -267,7 +260,7 @@ public class Main {
                             // Si es la primera vez que el log es leido añadiremos su nombre a la base de datos
                             preparedStatement = connection.prepareStatement(insertNodo);
                             preparedStatement.setString(1,ficheroName);
-                            preparedStatement.setInt(2,terminal);
+                            preparedStatement.setString(2,terminal);
                             preparedStatement.setString(3,logName);
                             preparedStatement.executeUpdate();
 
@@ -278,7 +271,7 @@ public class Main {
                                     lineParts = linea.split("/"); // Separamos el contenido de la linea y añadimos cada parte a una instrucción de la SQL
                                     preparedStatement = connection.prepareStatement(insertInfo);
                                     preparedStatement.setString(1,ficheroName);
-                                    preparedStatement.setInt(2,terminal);
+                                    preparedStatement.setString(2,terminal);
                                     preparedStatement.setInt(3, Integer.parseInt(codFecha));
                                     preparedStatement.setString(4, String.valueOf(numeroLinea));
                                     preparedStatement.setString(5,lineParts[0]);
