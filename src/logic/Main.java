@@ -23,7 +23,7 @@ public class Main {
         String selectDATABASES = "SHOW DATABASES;";
         String selectMaxFecha = "SELECT codFecha FROM logsdata.fecha_registro ORDER BY codFecha desc limit 1;";
         String selectPassword = "SELECT passW FROM usuario Where email = ?;";
-        String selectTerminal = "SELECT codTerminal, nombreTerminal FROM terminal WHERE nombreTerminal = ?";
+        String selectTerminal = "SELECT codTerminal, nombreTerminal FROM terminal WHERE codTerminal = ? AND nombreTerminal = ?";
         String[] urlcreates = new String[2];
         urlcreates[0] = URLCREATE;
         urlcreates[1] = URLCREATEIVAN;
@@ -54,6 +54,7 @@ public class Main {
         // Variables encargadas del proceso de multihilo.
         List<ThreadClass> hilos = new ArrayList<>();
         File [] arrayFile = directorio.listFiles();
+        File [] terminalFiles;
         File [] logFiles;
         String ficheroName;
 
@@ -88,7 +89,7 @@ public class Main {
 
                 }
                 if (!databaseExists){
-                    createDatabase(urlcreates, usuario);
+                    createDatabase(urlcreates, urls,usuario);
                 }
 
             } catch (SQLException e) {
@@ -197,36 +198,40 @@ public class Main {
             for (int i = 0; i < arrayFile.length; i++){
                 String terminal = "";
                 if (arrayFile[i].isDirectory()){
-                    if (arrayFile[i].toString().contains(usuariosDatabase.get(userSelected))){
-                        logFiles = arrayFile[i].listFiles();
-                        try{
-                            Class.forName("com.mysql.cj.jdbc.Driver");
-                            connection = DriverManager.getConnection(urls[usuario],USER,PASSWORD);
-                            System.out.println("Terminal encontrada: " + arrayFile[i].toString());
-                            String terminalName = arrayFile[i].toString();
-
-                            PreparedStatement sentence = connection.prepareStatement(selectTerminal);
-                            sentence.setString(1,terminalName);
-                            ResultSet resultSet2 = sentence.executeQuery();
-                            while(resultSet2.next()){
-                                terminal = resultSet2.getString("codTerminal");
+                    terminalFiles = arrayFile[i].listFiles();
+                    for (int j = 0; j < terminalFiles.length; j++){
+                        if (terminalFiles[j].toString().contains(usuariosDatabase.get(userSelected))){
+                            logFiles = terminalFiles[j].listFiles();
+                            try{
+                                Class.forName("com.mysql.cj.jdbc.Driver");
+                                connection = DriverManager.getConnection(urls[usuario],USER,PASSWORD);
+                                String terminalName = arrayFile[i].toString();
+                                String [] terminalNames = terminalName.split("_");
+                                PreparedStatement sentence = connection.prepareStatement(selectTerminal);
+                                sentence.setString(1,terminalNames[0]);
+                                sentence.setString(2,terminalNames[1]);
+                                ResultSet resultSet2 = sentence.executeQuery();
+                                while(resultSet2.next()){
+                                    terminal = resultSet2.getString("codTerminal");
+                                }
+                            } catch (SQLException e) {
+                                throw new RuntimeException(e);
+                            } catch (ClassNotFoundException e) {
+                                throw new RuntimeException(e);
                             }
-                        } catch (SQLException e) {
-                            throw new RuntimeException(e);
-                        } catch (ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
-                        for (int j = 0; j < logFiles.length; j++){
-                            ficheroName = logFiles[j].getName();
-                            if (ficheroName.contains(".log")) {
-                                System.out.println("\t"+ficheroName);
-                                hilos.add(new ThreadClass(logFiles[j], palabrasBusqueda, terminal));
-                                hilos.get(hilos.size()-1).start();
+                            for (int k = 0; k < logFiles.length; k++){
+                                ficheroName = logFiles[k].getName();
+                                if (ficheroName.contains(".log")) {
+                                    System.out.println("\t"+ficheroName);
+                                    hilos.add(new ThreadClass(logFiles[k], palabrasBusqueda, terminal));
+                                    hilos.get(hilos.size()-1).start();
+                                }
                             }
-                        }
 
+                        }
                     }
-                }
+                    }
+
                 /*
                 ficheroName = arrayFile[i].getName();
                 if (ficheroName.contains(".log")) {
@@ -340,7 +345,30 @@ public class Main {
 
         return numero;
     }
-    public void createDatabase(String [] urlCreates, int usuario){ // Este método se usa para crear la base de datos en caso de que no exista.
+
+
+    public void createTerminals(String [] urls, int usuario){
+        String selectTerminal = "SELECT codTerminal, nombreTerminal FROM terminal";
+        Connection connexion;
+        Statement statement;
+        ResultSet resultSet;
+        String folderName;
+        File carpeta = null;
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            connexion = DriverManager.getConnection(urls[usuario], USER, PASSWORD);
+            statement = connexion.createStatement();
+            resultSet = statement.executeQuery(selectTerminal);
+            while(resultSet.next()){  // Consultamos en la base de datos las terminales, para crear las carpetas
+                folderName = String.format("%s_%s", resultSet.getString("codTerminal"), resultSet.getString("nombreTerminal"));
+                carpeta = new File(String.format("%s/%s",String.format(String.valueOf(directorio)), folderName));
+                carpeta.mkdir();
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void createDatabase(String [] urlCreates, String [] urls, int usuario){ // Este método se usa para crear la base de datos en caso de que no exista.
         File script = new File(DATABASE_CREATE);
         Connection connexion;
         StringBuilder stringBuilder = new StringBuilder();
@@ -370,6 +398,7 @@ public class Main {
             Statement sentencia = connexion.createStatement();
             res = sentencia.executeUpdate(consulta);
             System.out.println("funca, " + res);
+            createTerminals(urls,usuario);
             connexion.close();
             sentencia.close();
             br.close();
