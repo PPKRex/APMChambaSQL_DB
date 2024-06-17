@@ -23,7 +23,7 @@ public class Main {
         String selectDATABASES = "SHOW DATABASES;";
         String selectMaxFecha = "SELECT codFecha FROM logsdata.fecha_registro ORDER BY codFecha desc limit 1;";
         String selectPassword = "SELECT passW FROM usuario Where email = ?;";
-        String selectTerminal = "SELECT codTerminal, nombreTerminal FROM terminal WHERE codTerminal = ? AND nombreTerminal = ?";
+        String selectTerminal = "SELECT codTerminal, nombreTerminal FROM terminal WHERE codTerminal = ? AND nombreTerminal =?";
         String[] urlcreates = new String[2];
         urlcreates[0] = URLCREATE;
         urlcreates[1] = URLCREATEIVAN;
@@ -206,7 +206,8 @@ public class Main {
                                 Class.forName("com.mysql.cj.jdbc.Driver");
                                 connection = DriverManager.getConnection(urls[usuario],USER,PASSWORD);
                                 String terminalName = arrayFile[i].toString();
-                                String [] terminalNames = terminalName.split("_");
+                                String [] terminalNames = terminalName.split("\\\\");
+                                terminalNames = terminalNames[terminalNames.length-1].split("_");
                                 PreparedStatement sentence = connection.prepareStatement(selectTerminal);
                                 sentence.setString(1,terminalNames[0]);
                                 sentence.setString(2,terminalNames[1]);
@@ -261,7 +262,6 @@ public class Main {
                                 logName = logNameParts[0];
                             }
 
-
                             // Si es la primera vez que el log es leido añadiremos su nombre a la base de datos
                             preparedStatement = connection.prepareStatement(insertNodo);
                             preparedStatement.setString(1,ficheroName);
@@ -272,6 +272,7 @@ public class Main {
                             for (String linea: hilos.get(i).getListaLocal()){ //Iteramos la lista del hilo para subir cada linea a la base de datos
                                 numeroLinea++;
                                 numeroLineasTotal++;
+
                                 if (linea  != null){
                                     lineParts = linea.split("/"); // Separamos el contenido de la linea y añadimos cada parte a una instrucción de la SQL
                                     preparedStatement = connection.prepareStatement(insertInfo);
@@ -282,9 +283,12 @@ public class Main {
                                     preparedStatement.setString(5,lineParts[0]);
                                     preparedStatement.setString(6,lineParts[1]);
                                     preparedStatement.setString(7,lineParts[2]);
-                                    preparedStatement.executeUpdate();
-                                    System.out.println("Sube");
-                                    System.out.println(ficheroName + codFecha + lineParts[0] +  lineParts[1]  + lineParts[2]);
+                                    if (preparedStatement.executeUpdate() == 0){
+                                        System.err.println("NO Subido");
+                                    }else{
+                                        System.out.println("Subido");
+                                    }
+                                    System.out.printf("%s/%s/%s/%s/%s/%s/%s",ficheroName , terminal , codFecha , numeroLinea, lineParts[0] ,  lineParts[1]  , lineParts[2]);
                                 }
                             }
                         }
